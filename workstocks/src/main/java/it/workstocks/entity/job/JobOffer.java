@@ -1,6 +1,7 @@
 package it.workstocks.entity.job;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PreRemove;
+
+import org.springframework.data.annotation.Transient;
 
 import it.workstocks.entity.BaseEntity;
 import it.workstocks.entity.company.Company;
@@ -70,13 +73,28 @@ public class JobOffer extends BaseEntity<Long> {
 	@JoinColumn(nullable = false)
 	private WorkingPlace workingPlace;
 	
-	@OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "job_offer_id")
-	private Set<Skill> skills = new LinkedHashSet<>();
+	private Set<Skill> skillsList = new LinkedHashSet<>();
 	
 	@ManyToMany
 	@JoinTable(name = "favourites")
 	private Set<Applicant> favouritesApplicant = new LinkedHashSet<>();
+	
+	@Transient
+	public Set<String> getSkills() {
+		if (this.getSkillsList() != null && !this.getSkillsList().isEmpty()) {
+			Set<String> skills = new HashSet<>();
+
+			for (Skill skill : this.getSkillsList()) {
+				skills.add(skill.getName());
+			}
+			
+			return skills;
+		} else {
+			return null;
+		}
+	}
 	
 	@PreRemove
 	private void removeFavouritesFromJobOffer() {

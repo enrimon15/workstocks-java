@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- All Plugins Css -->
+    <link th:href="@{|${baseUrl}/css/plugins.css|}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{|${baseUrl}/css/styles.css|}" rel="stylesheet">
+    <!-- Custom Color -->
+    <link th:href="@{|${baseUrl}/css/skin/default.css|}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{|${baseUrl}/css/custom.css|}" rel="stylesheet">
+    
+</head>
+
+
+<body class="green-skin">
+
+  
+<div>
+
+<!-- ======================= Start Banner ===================== -->
+<!--  <section style="padding: 80px 0 0px!important;">
+	
+</section> -->
+<!-- ======================= End Banner ===================== -->
+
+<!-- ============== Job Detail ====================== -->
+<div class="gray-bg mt-5">
+
+<div class="container-fluid">
+		<div class="m-0 align-items-end mb-1 col-12">
+			<div class="tr-list-wrap">
+				<div>
+					<div class="tr-list-thumb">
+						<img th:src="${user.avatar} ? @{'data:image/jpeg;base64,' + ${user.base64Avatar}} : @{|${baseUrl}/img/default.png|}" class="img-responsive" alt="" />
+					</div>
+					<div class="tr-list-info">
+						<h4 class="mb-1">[[${user?.name + ' ' + user?.surname}]]</h4>
+						<p class="mb-1 text-warning" th:text="${user.jobTitle}">{{$user->profile->job_title ?? null}}</p>
+						<p class="mb-1">
+							
+								<i th:if="${user?.address?.city != null or user?.address?.country != null}" class="ti-location-pin mr-2"></i>
+							
+							[[${user?.address?.city != null ? user.address.city + ', ' : ''}]] [[${user?.address?.country}]]
+						</p>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+		
+
+			<!-- Sidebar Start -->
+			<div class="col-12">
+
+				<!-- Candidate Detail -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-direction"></i> [[#{up.detail}]]</h4>
+					</div>
+
+
+					<div class="tr-single-body">
+					
+						<div class="row">
+						
+							<div class="col-6">
+								<ul class="extra-service">
+
+									<li th:if="${user.minimumExpectedSalary != null}">
+										<div class="icon-box-icon-block">
+										<span>
+											<div class="icon-box-round">
+												<i class="ti-money"></i>
+											</div>
+											<div class="icon-box-text" th:text="#{up.salary} + ': ' + ${user.minimumExpectedSalary} + ' K'">
+												salary
+											</div>
+										</span>
+										</div>
+									</li>
+									
+		
+									
+									<li th:if="${user.gender != null}">
+										<div class="icon-box-icon-block">
+										<span>
+											<div class="icon-box-round">
+												<i class="lni-users"></i>
+											</div>
+											<div class="icon-box-text" th:text="#{up.gender} + ': ' + ${user.gender != null ? user.gender.name().charAt(0) : null}">
+												gender
+											</div>
+										</span>
+										</div>
+									</li>
+									
+									<li th:if="${user.phoneNumber}">
+										<div class="icon-box-icon-block">
+												<span>
+												<div class="icon-box-round">
+													<i class="lni-phone-handset"></i>
+												</div>
+												<div class="icon-box-text" th:text="${user.phoneNumber}">
+													telephone
+												</div>
+												</span>
+										</div>
+									</li>
+		
+									
+									<li th:if="${user.website != null and !''.equals(user.website)}">
+										<div class="icon-box-icon-block">
+											<span>
+												<div class="icon-box-round">
+													<i class="lni-world"></i>
+												</div>
+												<div class="icon-box-text" th:text="${user.website}">
+													website
+												</div>
+											</span>
+										</div>
+									</li>
+									
+									<li th:if="${user.email}">
+										<div class="icon-box-icon-block">
+											<span>
+												<div class="icon-box-round">
+													<i class="lni-envelope"></i>
+												</div>
+												<div class="icon-box-text" th:text="${user.email}">
+													email
+												</div>
+											</span>
+										</div>
+									</li>
+								
+									
+								</ul>
+							</div>
+							
+						</div>
+						
+					</div>
+
+				</div>
+
+			</div>
+
+
+			<div class="col-12 mt-3">
+
+				<!-- Candidate Overview -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-info"></i>[[#{up.overview}]]</h4>
+					</div>
+					<div th:if="${user?.overview != null and !user.overview.isEmpty()}" class="tr-single-body" th:utext="${user?.overview}">
+					</div>
+					<div th:unless="${user?.overview != null and !user.overview.isEmpty()}" class="tr-single-body" th:text="#{up.noDesc}">
+					</div>
+				</div>
+
+				<!-- Extra Skill& Knowledge -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-book"></i> [[#{up.skill}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<!-- Skills -->
+						<div class="row">
+						
+							<th:block th:if="${user?.skills != null and !user.skills.isEmpty()}">
+							
+								<div th:each="skill : ${user.skills}" class="col-lg-6 col-md-6 col-sm-12">
+									<label th:text="${skill.name + '   ('} + #{ocv.+${skill?.assestment.name().toLowerCase()}} + ${')'}">name</label>
+								</div>
+							</th:block>
+							<th:block th:unless="${user?.skills != null and !user.skills.isEmpty()}">
+								<p class="ml-4" th:text="#{up.noSkill}">noSkill</p>
+							</th:block>
+
+						</div>
+
+					</div>
+				</div>
+
+
+				<!-- Education & Qualification -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-cup"></i>[['  ' + #{up.education}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul  th:style="${user.qualifications.size <= 0 ? 'border-left: none!important; padding: unset;' : 'padding: unset;'}">
+
+							<th:block th:if="${user?.qualifications != null and !user.qualifications.isEmpty()}">
+								<!-- Single List -->
+								<li th:each="qualification : ${user.qualifications}" class="mb-2">
+									<div class="qa-skill-box">
+										<h4 class="qa-skill-title">[[${qualification.name}]]<span class="qa-time">[[${qualification.startDate}]] -  [[${qualification.endDate != null ? qualification.endDate : #messages.msgOrNull('ocv.inProgress')}]]</span></h4>
+										<h5 class="qa-subtitle">[[${qualification.institute}]]</h5>
+										
+											<div th:if="${qualification.description != null AND !''.equals(qualification.description)}" class="qa-content">
+												<p>[[${qualification.description}]]</p>
+											</div>
+										
+
+											<div th:if="${qualification.valuation != null AND qualification.valuation.trim().length > 0}" class="qa-content">
+												<p>[[#{up.valuation}]] [[${qualification.valuation}]]</p>
+											</div>
+									</div>
+								</li>
+							</th:block>
+							<th:block th:unless="${user?.qualifications != null and !user.qualifications.isEmpty()}">
+								<p th:text="#{up.noEducation}">noEducation</p>
+							</th:block>
+
+						</ul>
+					</div>
+				</div>
+
+				<!-- Experience -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="lni lni-briefcase"></i>[['  ' + #{up.experience}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul th:style="${user?.experiences != null and user?.experiences.size() le 0 ? 'border-left: none!important; padding: unset;' : 'padding: unset;'}">
+
+						<th:block th:if="${user?.experiences != null and !user.experiences.isEmpty()}">
+							<!-- Single List -->
+							<li th:each="experience : ${user.experiences}" class="mb-2">
+								<div class="qa-skill-box">
+									<h4 class="qa-skill-title">[[${experience.jobPosition}]]<span class="qa-time">[[${experience.startDate} + ' - ' + ${experience.endDate != null ? experience.endDate : #messages.msgOrNull('ocv.inProgress')}]]</span></h4>
+									<h5 class="qa-subtitle" th:text="${experience.company}">company</h5>
+									
+										<div th:if="${experience.description != null and !''.equals(experience.description)}" class="qa-content">
+											<p>[[${experience.description}]]</p>
+										</div>
+									
+								</div>
+							</li>
+						</th:block>
+						<th:block th:unless="${user?.experiences != null and !user.experiences.isEmpty()}">
+							<p th:text="#{up.noExperience}">noExperience</p>
+						</th:block>
+
+						</ul>
+					</div>
+				</div>
+
+				<!-- Certificate -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="lni-certificate"></i>[['  ' + #{up.certificate}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul th:style="${user?.certifications != null and user?.certifications.size() le 0 ? 'border-left: none!important; padding: unset;' : 'padding: unset;'}">
+
+							<th:block th:if="${user?.certifications != null and !user.certifications.isEmpty()}">
+								<!-- Single List -->
+									<li th:each="certificate : ${user.certifications}" class="mb-2">
+										<div class="qa-skill-box">
+											<h4 class="qa-skill-title">[[${certificate.name}]]<span class="qa-time">[[${certificate.date} + ' - ' + ${certificate.endDate != null ? certificate.endDate : #messages.msgOrNull('up.noExp')} ]]</span></h4>
+											<h5 class="qa-subtitle">[[#{up.society} + ' ' + ${certificate.society}]]</h5>
+											<div class="qa-content">
+												<p>[[#{up.credential}]] <a th:href="${certificate.url != null ? certificate.url : '#'}">[[${certificate.credential}]]</a></p>
+											</div>
+										</div>
+									</li>
+							</th:block>
+							<th:block th:unless="${user?.certifications != null and !user.certifications.isEmpty()}">
+								<p th:text="#{up.message}">message</p>
+							</th:block>
+
+						</ul>
+					</div>
+				</div>
+
+
+			</div>
+
+
+	</div>
+</div>
+<!-- ============== Job Detail ====================== -->
+
+</div>
+
+
+</body>	
+
+</html>

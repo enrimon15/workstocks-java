@@ -1,14 +1,13 @@
 package it.workstocks.service;
 
 import it.workstocks.dto.review.ReviewDto;
-import it.workstocks.dto.review.ReviewKeyDto;
 import it.workstocks.entity.pojo.ReviewAverageAndCountPojo;
 import it.workstocks.exception.WorkstocksBusinessException;
 
 public interface ReviewService {
 	
-	void addOrUpdateReview(ReviewDto dto) throws WorkstocksBusinessException;
+	void addReview(ReviewDto dto, Long companyId) throws WorkstocksBusinessException;
+	void updateReview(ReviewDto dto, Long companyId) throws WorkstocksBusinessException;
 	ReviewAverageAndCountPojo findAverageRatingByCompanyId(Long companyId) throws WorkstocksBusinessException;
-	ReviewDto findById(ReviewKeyDto key) throws WorkstocksBusinessException;
-
+	ReviewDto findByCompanyId(Long companyId) throws WorkstocksBusinessException;
 }

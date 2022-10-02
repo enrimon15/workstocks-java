@@ -3,10 +3,10 @@ package it.workstocks.service.impl;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,13 +14,14 @@ import it.workstocks.dto.job.JobOfferDto;
 import it.workstocks.entity.company.Company;
 import it.workstocks.entity.user.applicant.Applicant;
 import it.workstocks.exception.WorkstocksBusinessException;
+import it.workstocks.queue.QueueProducer;
 import it.workstocks.queue.message.EmailMessageJob;
 import it.workstocks.queue.message.EmailType;
-import it.workstocks.queue.producer.QueueProducer;
-import it.workstocks.repository.user.ApplicantRepository;
-import it.workstocks.service.ApplicantService;
+import it.workstocks.repository.ApplicantRepository;
 import it.workstocks.service.JobAlertService;
 import it.workstocks.service.JobOfferService;
+import it.workstocks.utils.ErrorUtils;
+import it.workstocks.utils.Translator;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,13 +31,13 @@ public class JobAlertImpl implements JobAlertService {
 	private JobOfferService jobOfferService;
 	
 	@Autowired
-	private ApplicantService applicantService;
-	
-	@Autowired
 	private ApplicantRepository applicantRepository;
 	
 	@Autowired
 	private QueueProducer queueProducer;
+	
+	@Autowired
+	private Translator translator;
 
 	@Override
 	public void runJobAlert() throws WorkstocksBusinessException {
@@ -64,7 +65,7 @@ public class JobAlertImpl implements JobAlertService {
 	private Set<Long> getJobAlertApplicantsForCompany(Long companyId) {
 		Set<Long> applicants = new HashSet<>();
 		
-		applicantService.getAllApplicantsJobAlertingCompany(companyId).stream().forEach(el -> {
+		applicantRepository.findByJobAlertCompaniesId(companyId).stream().forEach(el -> {
 			applicants.add(el.getId());
 		});
 				
@@ -78,19 +79,26 @@ public class JobAlertImpl implements JobAlertService {
 
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addOrRemoveJobAlert(Long companyId, Long applicantId, boolean isAdding) throws WorkstocksBusinessException {
-		Optional<Applicant> applicantOpt = applicantRepository.findById(applicantId);
-		if (applicantOpt.isEmpty()) throw new WorkstocksBusinessException("Applicant not found");
-		Applicant applicant = applicantOpt.get();
+	public Long addOrRemoveJobAlert(Long companyId, Long applicantId, boolean isAdding) throws WorkstocksBusinessException {
+		Applicant applicant = applicantRepository.findById(applicantId).get();
 		
 		if (isAdding) {
+			if (isJobAlertApplicaredByApplicant(companyId, applicantId)) {
+				throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.JOB_ALERT_ALREADY_APPLIED, new Long[] {applicantId, companyId}),HttpStatus.CONFLICT);
+			}
+			
 			Company comp = new Company();
 			comp.setId(companyId);
 			applicant.getJobAlertCompanies().add(comp);
 		} else {
-			applicant.getJobAlertCompanies().removeIf(comp -> comp.getId().equals(companyId));
+			boolean found = applicant.getJobAlertCompanies().removeIf(comp -> comp.getId().equals(companyId));
+			
+			if(!found) {
+				throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.JOB_ALERT_NOT_FOUND, new Long[] {applicantId, companyId}),HttpStatus.NOT_FOUND);
+			}
 		}
 		
 		applicantRepository.save(applicant);
+		return companyId;
 	}
 }

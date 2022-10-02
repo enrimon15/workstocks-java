@@ -35,6 +35,11 @@ public class Review extends BaseEntity<ReviewKey> {
 	private Company company;
 	
 	public void setCompanyFromDto(Long id) {
+		if (this.id == null) {
+			this.id = new ReviewKey();
+		}
+		this.id.setCompanyId(id);
+		
 		if (this.company == null) {
 			this.company = new Company();
 		}
@@ -42,6 +47,11 @@ public class Review extends BaseEntity<ReviewKey> {
 	}
 	
 	public void setApplicantFromDto(Long id) {
+		if (this.id == null) {
+			this.id = new ReviewKey();
+		}
+		this.id.setApplicantId(id);
+		
 		if (this.applicant == null) {
 			this.applicant = new Applicant();
 		}

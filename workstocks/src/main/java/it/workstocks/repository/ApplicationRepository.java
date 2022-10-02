@@ -13,9 +13,7 @@ import it.workstocks.entity.job.JobOffer;
 @Repository
 public interface ApplicationRepository extends JpaRepository<JobApplication, JobApplicationKey>{
 	Page<JobApplication> findByApplicantIdOrderByCreatedAtDesc(Long applicantId, Pageable pageable);
-	Page<JobApplication> findByJobOfferIdOrderByCreatedAtDesc(Long jobOfferId, Pageable pageable);
 	Integer countByJobOfferId(Long jobId);
-	void deleteByJobOfferId(Long jobOfferId);
 	
 	@Query("SELECT app.jobOffer FROM JobApplication app GROUP BY app.jobOffer.id ORDER BY COUNT(app) DESC")
 	Page<JobOffer> findPopularJobOffer(Pageable pageable);

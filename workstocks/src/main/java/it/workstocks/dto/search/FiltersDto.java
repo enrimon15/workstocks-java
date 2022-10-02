@@ -1,10 +1,8 @@
 package it.workstocks.dto.search;
 
-import java.util.List;
-
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
-import it.workstocks.dto.AggregatorDto;
 import it.workstocks.entity.enums.ContractType;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,10 +31,17 @@ public class FiltersDto {
 	@Size(min = 2, max = 80)
 	private ContractType offerType;
 	
-	private List<AggregatorDto<Integer>> employeesNumber;
-	private List<AggregatorDto<Integer>> foundationYear;
-	private List<AggregatorDto<Integer>> experience;
-	private List<AggregatorDto<Integer>> salary;
+	@Min(0)
+	private Integer employeesNumber;
+	
+	@Min(0)
+	private Integer foundationYear;
+	
+	@Min(0)
+	private Integer experience;
+	
+	@Min(0)
+	private Integer salary;
 	
 	@Size(min = 2, max = 80)
 	private String newsSearchQuery;

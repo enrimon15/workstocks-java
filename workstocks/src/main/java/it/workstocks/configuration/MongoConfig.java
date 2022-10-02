@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "it.workstocks.repository.blog")
+@EnableMongoRepositories(basePackages = "it.workstocks.repository")
 @EnableMongoAuditing // per date annotation --> @CreatedDate
 public class MongoConfig {
 	

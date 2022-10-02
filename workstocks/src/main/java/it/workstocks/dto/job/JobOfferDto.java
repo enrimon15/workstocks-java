@@ -1,6 +1,7 @@
 package it.workstocks.dto.job;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import javax.validation.Valid;
@@ -11,10 +12,8 @@ import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import it.workstocks.dto.BaseDto;
-import it.workstocks.dto.user.applicant.cv.SkillDto;
+import it.workstocks.dto.AddressDto;
 import it.workstocks.dto.user.company.SimpleCompanyDto;
-import it.workstocks.dto.user.company.WorkingPlaceDto;
 import it.workstocks.entity.enums.ContractType;
 import it.workstocks.entity.enums.Gender;
 import lombok.Getter;
@@ -22,8 +21,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class JobOfferDto extends BaseDto<Long> {
+public class JobOfferDto {
 	private Long id;
+	
+	private LocalDateTime createdAt;
 
 	@Valid
 	private SimpleCompanyDto company;
@@ -58,11 +59,8 @@ public class JobOfferDto extends BaseDto<Long> {
 	@NotNull
 	private Short experience;
 	
-	private WorkingPlaceDto workingPlace;
+	private AddressDto address;
 	
-	@Valid
-	private Set<SkillDto> skills;
-	
-	private String[] skillFromFE;
+	private Set<String> skills;
 
 }

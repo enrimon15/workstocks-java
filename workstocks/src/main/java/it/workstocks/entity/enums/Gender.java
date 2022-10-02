@@ -1,5 +1,7 @@
 package it.workstocks.entity.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Gender {
 	MALE("M"), FEMALE("F"), NOTSPECIFIED("NS");
 	
@@ -9,6 +11,7 @@ public enum Gender {
         this.value = code;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }

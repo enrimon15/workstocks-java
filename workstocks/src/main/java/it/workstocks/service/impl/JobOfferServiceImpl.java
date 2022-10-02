@@ -12,29 +12,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import it.workstocks.dao.IJobOfferDao;
 import it.workstocks.dto.job.JobOfferDto;
+import it.workstocks.dto.job.SimpleJobOfferDto;
 import it.workstocks.dto.mapper.EntityMapper;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.dto.pagination.PaginatedResponse;
 import it.workstocks.dto.search.PaginatedRequest;
 import it.workstocks.entity.PaginatedEntityResponse;
-import it.workstocks.entity.company.Company;
-import it.workstocks.entity.enums.SkillType;
 import it.workstocks.entity.job.JobOffer;
 import it.workstocks.entity.user.applicant.Applicant;
-import it.workstocks.entity.user.applicant.curricula.Skill;
 import it.workstocks.exception.WorkstocksBusinessException;
-import it.workstocks.repository.ApplicationRepository;
+import it.workstocks.repository.ApplicantRepository;
 import it.workstocks.repository.JobOfferRepository;
-import it.workstocks.repository.user.ApplicantRepository;
-import it.workstocks.security.Roles;
+import it.workstocks.repository.custom.IJobOfferDao;
 import it.workstocks.service.JobOfferService;
-import it.workstocks.utils.AuthUtility;
+import it.workstocks.utils.ErrorUtils;
+import it.workstocks.utils.Translator;
 
 @Service
 @Transactional(readOnly = true)
@@ -48,24 +45,27 @@ public class JobOfferServiceImpl implements JobOfferService {
 
 	@Autowired
 	private ApplicantRepository applicantRepository;
-	
-	@Autowired
-	private ApplicationRepository applicationRepository;
 
 	@Autowired
 	private IJobOfferDao jobOfferDao;
 	
+	@Autowired
+	private Translator translator;
+	
 	private JobOffer findOptionalJobOffer(Long idJob, boolean checkOwnerPermission) throws WorkstocksBusinessException {
 		Optional<JobOffer> jo = jobRepository.findById(idJob);
-
 		if (jo.isPresent()) {
-			if (checkOwnerPermission && AuthUtility.hasRole(Roles.COMPANY_OWNER) && !AuthUtility.getCurrentCompanyOwner().getCompany().getId().equals(jo.get().getCompany().getId())) {
-				throw new AccessDeniedException("User unauthorized to get job offer");
-			}
 			return jo.get();
-		} else {
-			String err = String.format("Job offer not found for id %d", idJob);
-			throw new WorkstocksBusinessException(err);
+		} else {			
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"job offer", idJob}),HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@Override
+	public void checkExistenceById(Long jobOfferId) throws WorkstocksBusinessException {
+		boolean exist = jobRepository.existsById(jobOfferId);
+		if (!exist) {			
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"job offer", jobOfferId}),HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -74,15 +74,16 @@ public class JobOfferServiceImpl implements JobOfferService {
 		return mapper.toDto(findOptionalJobOffer(id, false));
 	}
 	
-	private PaginatedDtoResponse<JobOfferDto> getJobOfferPaginatedByQueryRes(Page<JobOffer> jobsPaginated) {
-		Set<JobOfferDto> content = mapper.toDtoJobOfferCollection(new LinkedHashSet<>(jobsPaginated.getContent()));
+	private PaginatedDtoResponse<SimpleJobOfferDto> getJobOfferPaginatedByQueryRes(Page<JobOffer> jobsPaginated) {
+		Set<SimpleJobOfferDto> content = mapper.toDtoJobOfferCollection(new LinkedHashSet<>(jobsPaginated.getContent()));
 
 		PaginatedResponse paginatedReponse = new PaginatedResponse();
 		paginatedReponse.setTotalElements(jobsPaginated.getTotalElements());
 		paginatedReponse.setPageNumber(jobsPaginated.getPageable().getPageNumber() + 1);
 		paginatedReponse.setTotalPages(jobsPaginated.getTotalPages());
+		paginatedReponse.setPageSize(jobsPaginated.getNumberOfElements());
 		
-		PaginatedDtoResponse<JobOfferDto> response = new PaginatedDtoResponse<>();
+		PaginatedDtoResponse<SimpleJobOfferDto> response = new PaginatedDtoResponse<>();
 		response.setResponse(paginatedReponse);
 		response.setElements(content);
 
@@ -90,56 +91,10 @@ public class JobOfferServiceImpl implements JobOfferService {
 	}
 
 	@Override
-	public PaginatedDtoResponse<JobOfferDto> findByCompanyId(Long id, int pageNumber) throws WorkstocksBusinessException {
-		Pageable pageable = PageRequest.of(pageNumber - 1, 10);
-		Page<JobOffer> jobsPaginated = jobRepository.findByCompanyIdOrderByCreatedAtDesc(id, pageable);
-		return getJobOfferPaginatedByQueryRes(jobsPaginated);
-	}
-	
-	@Override
-	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void insertOrUpdateJobOffer(JobOfferDto jobOfferDto) throws WorkstocksBusinessException {
-		JobOffer jobOffer = null;
-		if (jobOfferDto.getId() != null) {
-			jobOffer = findOptionalJobOffer(jobOfferDto.getId(), true);
-			mapper.updateJobOfferEntity(jobOfferDto, jobOffer);
-		} else {
-			jobOffer = mapper.toEntity(jobOfferDto);
-			Company comp = new Company();
-			comp.setId(AuthUtility.getCurrentCompanyOwner().getCompany().getId());
-			jobOffer.setCompany(comp);
-		}
-
-		if (jobOffer.getSkills() != null) {
-			jobOffer.getSkills().clear();
-		} else {
-			jobOffer.setSkills(new LinkedHashSet<>());
-		}
-
-		for (String skillName : jobOfferDto.getSkillFromFE()) {
-			Skill skill = new Skill();
-			skill.setName(skillName);
-			skill.setSkillType(SkillType.JOB_OFFER);
-			jobOffer.getSkills().add(skill);
-		}
-
-		jobRepository.save(jobOffer);
-	}
-
-	@Override
-	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void deleteById(Long id) throws WorkstocksBusinessException {
-		JobOffer job = findOptionalJobOffer(id, true);
-		applicationRepository.deleteByJobOfferId(id);	
-		jobRepository.delete(job);
-	}
-
-	@Override
-	public Set<JobOfferDto> findLatestsByCompanyId(Long companyId, int jobsNumber) throws WorkstocksBusinessException {
-		Set<JobOffer> latestJobs = new LinkedHashSet<>(
-				jobRepository.findByCompanyIdAndDueDateGreaterThanEqualOrderByDueDateDesc(companyId, LocalDate.now(),
-						PageRequest.of(0, jobsNumber)));
-		return mapper.toDtoJobOfferCollection(latestJobs);
+	public Set<SimpleJobOfferDto> findByCompanyId(Long id, int limit) {
+		Pageable pageable = PageRequest.of(0, limit);
+		Set<JobOffer> companyJobs = new HashSet<>(jobRepository.findByCompanyIdAndDueDateGreaterThanEqualOrderByDueDateDesc(id, LocalDate.now(), pageable).getContent());
+		return mapper.toDtoJobOfferCollection(companyJobs);
 	}
 
 	@Override
@@ -150,33 +105,42 @@ public class JobOfferServiceImpl implements JobOfferService {
 	
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addOrRemoveApplicantFavorite(boolean isFavorite, Long applicantId, Long jobId) throws WorkstocksBusinessException {
+	public Long addOrRemoveApplicantFavorite(boolean isFavorite, Long applicantId, Long jobId) throws WorkstocksBusinessException {
 		JobOffer job = findOptionalJobOffer(jobId, false);
 
 		if (isFavorite) {
-			job.getFavouritesApplicant().removeIf(applicant -> applicant.getId().equals(applicantId));
+			boolean isRemoved = job.getFavouritesApplicant().removeIf(applicant -> applicant.getId().equals(applicantId));
+			if (!isRemoved) {
+				throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.FAVOURITE_NOT_FOUND, new Object[] {jobId, applicantId}),HttpStatus.NOT_FOUND);
+			}
 		} else {
+			if (isFavoriteForApplicant(jobId, applicantId)) {
+				throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.FAVOURITE_ALREADY_APPLIED, new Object[] {jobId, applicantId}),HttpStatus.CONFLICT);
+			}
+			
 			Applicant app = new Applicant();
 			app.setId(applicantId);
 			job.getFavouritesApplicant().add(app);
 		}
 
 		jobRepository.save(job);
+		
+		return jobId;
 	}
 
 
 	@Override
-	public PaginatedDtoResponse<JobOfferDto> findFavoritesByApplicantId(Long id, Integer page) throws WorkstocksBusinessException {
-		Pageable pageable = PageRequest.of(page - 1, 10);
+	public PaginatedDtoResponse<SimpleJobOfferDto> findFavoritesByApplicantId(Long id, Integer page, Integer pageSize) throws WorkstocksBusinessException {
+		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		Page<JobOffer> jobsPaginated = jobRepository.findByFavouritesApplicantIdOrderByDueDateDesc(id, pageable);
 		return getJobOfferPaginatedByQueryRes(jobsPaginated);
 	}
 
 	@Override
-	public PaginatedDtoResponse<JobOfferDto> searchJobOffers(PaginatedRequest request) throws WorkstocksBusinessException {
+	public PaginatedDtoResponse<SimpleJobOfferDto> searchJobOffers(PaginatedRequest request) {
 		PaginatedEntityResponse<JobOffer> daoResponse = jobOfferDao.searchJobOffer(request);
 
-		PaginatedDtoResponse<JobOfferDto> dtoResponse = new PaginatedDtoResponse<>();
+		PaginatedDtoResponse<SimpleJobOfferDto> dtoResponse = new PaginatedDtoResponse<>();
 
 		dtoResponse.setElements(mapper.toDtoJobOfferCollection(daoResponse.getElements()));
 		dtoResponse.setResponse(daoResponse.getReponse());
@@ -185,7 +149,7 @@ public class JobOfferServiceImpl implements JobOfferService {
 	}
 	
 	@Override
-	public long countAllJobOffers() throws WorkstocksBusinessException {
+	public long countAllJobOffers() {
 		return jobRepository.count();
 	}
 	

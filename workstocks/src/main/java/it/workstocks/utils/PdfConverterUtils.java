@@ -14,10 +14,9 @@ import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.layout.font.FontProvider;
 
 import it.workstocks.configuration.WorkstocksProperties;
-import it.workstocks.dto.user.applicant.ApplicantDto;
+import it.workstocks.entity.user.applicant.Applicant;
 import it.workstocks.exception.WorkstocksBusinessException;
-import it.workstocks.presentation.Templates;
-import it.workstocks.service.ProfileService;
+import it.workstocks.repository.ApplicantRepository;
 
 @Component
 public class PdfConverterUtils {
@@ -26,20 +25,22 @@ public class PdfConverterUtils {
 	private TemplateEngine templateEngine;
 	
 	@Autowired
-	private ProfileService profileService;
+	private ApplicantRepository applicantRepository;
 	
 	@Autowired
-	private WorkstocksProperties props;
+	WorkstocksProperties props;
+	
+	private static final String CV_TEMPLATE = "cv-pdf";
 	
 	public byte[] generateCVPdfFromHtmlTemplate() throws WorkstocksBusinessException {
-		ApplicantDto dto = (ApplicantDto) profileService.loadFullUserById(AuthUtility.getCurrentApplicant().getId(), ApplicantDto.class);
+		Applicant applicant = applicantRepository.findById(AuthUtility.getCurrentApplicant().getId()).get();
 
 		Context context = new Context();
 		Map<String, Object> variables = new HashMap<>();
-        variables.put("user", dto);
-        variables.put("baseUrl", props.getSiteUrl());
+        variables.put("user", applicant);
+        variables.put("baseUrl", props.getSite().getUrl());
         context.setVariables(variables);
-        String templateHTML = templateEngine.process(Templates.CV_TEMPLATE.getTemplate(), context);
+        String templateHTML = templateEngine.process(CV_TEMPLATE, context);
         
         ByteArrayOutputStream buffer = new ByteArrayOutputStream(); 
         

@@ -1,19 +1,21 @@
 package it.workstocks.utils;
-
-import it.workstocks.presentation.Templates;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 public enum MailType {
-	CONTACT(Templates.EMAIL_CONTACT),
-	APPLICATION_APPLICANT(Templates.EMAIL_APPLICATION_APPLICANT),
-	APPLICATION_COMPANY(Templates.EMAIL_APPLICATION_COMPANY),
-	RESET_PASSWORD(Templates.EMAIL_RESET_PASSWORD),
-	JOB_ALERT(Templates.EMAIL_JOB_ALERT);
+	CONTACT("emails/mail-contact"),
+	APPLICATION_APPLICANT("emails/mail-application-toSubscriber"),
+	APPLICATION_COMPANY("emails/mail-application-toCompany"),
+	RESET_PASSWORD("emails/mail-reset"),
+	JOB_ALERT("emails/mail-job-alert");
 	
-	private Templates template;
+	private String template;
 	
+	MailType(String template) {
+		this.template = template;
+	}
 	
+	public String getTemplate() {
+		return this.template;
+	}
 }

@@ -1,6 +1,7 @@
 package it.workstocks.entity.user.applicant;
 
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -58,18 +59,18 @@ public class Applicant extends User {
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
-	@OneToMany(mappedBy="applicant", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(mappedBy="applicant", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Skill> skills = new LinkedHashSet<>();
 
-	@OneToMany(mappedBy="applicant", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(mappedBy="applicant", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("date DESC")
 	private Set<Certification> certifications = new LinkedHashSet<>();
 
-	@OneToMany(mappedBy="applicant", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(mappedBy="applicant", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("startDate DESC")
 	private Set<Qualification> qualifications = new LinkedHashSet<>();
 
-	@OneToMany(mappedBy = "applicant", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("startDate DESC")
 	private Set<Experience> experiences = new LinkedHashSet<>();
 
@@ -79,4 +80,9 @@ public class Applicant extends User {
 	@ManyToMany
 	@JoinTable(name = "job_alerts")
 	private Set<Company> jobAlertCompanies = new LinkedHashSet<>();
+	
+	public String getBase64Avatar() {
+		if (this.getAvatar() == null) return null;
+		return Base64.getEncoder().encodeToString(this.getAvatar());
+	}
 }

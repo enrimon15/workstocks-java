@@ -53,10 +53,10 @@ public class Company extends BaseEntity<Long> {
 	@OneToOne(mappedBy = "company")
 	private CompanyOwner companyOwner;
 	
-	@OneToMany(mappedBy = "company", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<JobOffer> jobOffers = new LinkedHashSet<>();
 		
-	@OneToMany(mappedBy="company", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToMany(mappedBy="company", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<WorkingPlace> workingPlaces = new LinkedHashSet<>();
 	
 	@Transient

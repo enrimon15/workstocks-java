@@ -1,7 +1,5 @@
 package it.workstocks.dto.user.company;
 
-import java.util.Set;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -9,18 +7,15 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import it.workstocks.dto.BaseDto;
-import it.workstocks.dto.job.JobOfferDto;
+import it.workstocks.dto.AddressDto;
 import it.workstocks.entity.pojo.ReviewAverageAndCountPojo;
 import it.workstocks.validator.url.UrlConstraint;
-import it.workstocks.validator.vatnumber.VatNumberConstraint;
-import it.workstocks.validator.vatnumber.VatNumberUniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CompanyDto extends BaseDto<Long> {
+public class CompanyDto {
 	private Long id;
 	
 	@Size(min = 3, max = 60)
@@ -28,8 +23,6 @@ public class CompanyDto extends BaseDto<Long> {
 	private String name;
 	
 	@NotNull
-	@VatNumberConstraint
-	@VatNumberUniqueConstraint
 	private Long vatNumber;
 	
 	@Size(min = 2, max = 5)
@@ -52,7 +45,7 @@ public class CompanyDto extends BaseDto<Long> {
 	@UrlConstraint
 	private String website;
 	
-	private CompanyOwnerDto companyOwner;
+	private String email;
 	
 	@Size(min = 3, max = 80)
 	private String slogan;
@@ -61,16 +54,15 @@ public class CompanyDto extends BaseDto<Long> {
 	@Size(min = 7, max = 11)
 	private String telephone;
 	
-	@Valid
-	private Set<WorkingPlaceDto> workingPlaces;
+	private String workingPlaces;
+	
+	private String jobOffers;
 	
 	@Valid
-	private Set<JobOfferDto> jobOffers;
+	private AddressDto address;
 	
-	@Valid
-	private WorkingPlaceDto mainWorkingPlace;
+	private String photo;
 	
 	@Valid
 	private ReviewAverageAndCountPojo ratingStats;
-
 }

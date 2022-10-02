@@ -8,13 +8,12 @@ import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import it.workstocks.dto.BaseDto;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ExperienceDto extends BaseDto<Long> {
+public class ExperienceDto {
 	private Long id;
 	
 	@NotBlank

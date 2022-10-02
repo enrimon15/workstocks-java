@@ -4,7 +4,8 @@ import java.util.Set;
 
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.dto.search.PaginatedRequest;
-import it.workstocks.dto.user.applicant.SimpleApplicantDto;
+import it.workstocks.dto.user.applicant.BasicApplicant;
+import it.workstocks.dto.user.applicant.SimpleApplicanDto;
 import it.workstocks.dto.user.applicant.cv.CertificationDto;
 import it.workstocks.dto.user.applicant.cv.ExperienceDto;
 import it.workstocks.dto.user.applicant.cv.QualificationDto;
@@ -12,19 +13,24 @@ import it.workstocks.dto.user.applicant.cv.SkillDto;
 import it.workstocks.exception.WorkstocksBusinessException;
 
 public interface ApplicantService {
-	SimpleApplicantDto findApplicantById(Long id) throws WorkstocksBusinessException;
-	void updateApplicantProfile(SimpleApplicantDto applicantDto) throws WorkstocksBusinessException;
+	void checkApplicantExistenceById(Long id) throws WorkstocksBusinessException;
+	BasicApplicant findApplicantById(Long id) throws WorkstocksBusinessException;
+	byte[] findApplicantAvatarById(Long id) throws WorkstocksBusinessException;	
+	void updateApplicantProfile(BasicApplicant applicantDto, Long applicantId) throws WorkstocksBusinessException;
+	boolean upsertApplicantPhoto(Long applicantId, byte[] photo) throws WorkstocksBusinessException;
+	
+	byte[] findApplicantCvById(Long id) throws WorkstocksBusinessException;
+	boolean upsertApplicantCv(byte[] cv) throws WorkstocksBusinessException;
 	
 	Set<QualificationDto> findApplicantQualifications(Long id) throws WorkstocksBusinessException;
 	Set<ExperienceDto> findApplicantExperiences(Long id) throws WorkstocksBusinessException;
 	Set<CertificationDto> findApplicantCertificates(Long id) throws WorkstocksBusinessException;
 	Set<SkillDto> findApplicantSkills(Long id) throws WorkstocksBusinessException;
 	
-	void addApplicantQualification(QualificationDto qualificationDto) throws WorkstocksBusinessException;
-	void addApplicantCertificate(CertificationDto certificationDto) throws WorkstocksBusinessException;
-	void addApplicantExperience(ExperienceDto experienceDto) throws WorkstocksBusinessException;
-	void addApplicantSkill(SkillDto skillDto) throws WorkstocksBusinessException;
-	void addApplicantCv(byte[] cv) throws WorkstocksBusinessException;
+	Long addApplicantQualification(QualificationDto qualificationDto) throws WorkstocksBusinessException;
+	Long addApplicantCertificate(CertificationDto certificationDto) throws WorkstocksBusinessException;
+	Long addApplicantExperience(ExperienceDto experienceDto) throws WorkstocksBusinessException;
+	Long addApplicantSkill(SkillDto skillDto) throws WorkstocksBusinessException;
 	
 	QualificationDto findQualificationById(Long id) throws WorkstocksBusinessException;
 	ExperienceDto findExperienceById(Long id) throws WorkstocksBusinessException;
@@ -41,9 +47,7 @@ public interface ApplicantService {
 	void modifyCertificate(CertificationDto certificationDto) throws WorkstocksBusinessException;
 	void modifySkill(SkillDto skillDto) throws WorkstocksBusinessException;
 
-	PaginatedDtoResponse<SimpleApplicantDto> searchApplicants(PaginatedRequest request) throws WorkstocksBusinessException;
+	PaginatedDtoResponse<SimpleApplicanDto> searchApplicants(PaginatedRequest request);
 
 	long countAllApplicant() throws WorkstocksBusinessException;
-	
-	Set<SimpleApplicantDto> getAllApplicantsJobAlertingCompany(Long companyId);
 }

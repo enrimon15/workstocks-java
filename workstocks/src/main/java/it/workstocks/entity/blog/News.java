@@ -69,5 +69,13 @@ public class News extends BaseMongoEntity<String> {
 		Comparator<Comment> comparator = Comparator.comparing( Comment::getCreatedAt );
 		return comparator;
 	}
+	
+	@Transient
+	public int getLikesNumber() {
+		if (this.likes != null && !this.likes.isEmpty()) {
+			return this.likes.size();
+		}
+		return 0;
+	}
 
 }

@@ -8,14 +8,13 @@ import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import it.workstocks.dto.BaseDto;
 import it.workstocks.validator.url.UrlConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CertificationDto extends BaseDto<Long> {
+public class CertificationDto {
 	private Long id;
 	
 	@NotBlank

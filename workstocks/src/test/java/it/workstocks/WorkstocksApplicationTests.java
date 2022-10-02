@@ -8,12 +8,4 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 class WorkstocksApplicationTests {
 
-//	@Autowired
-//	private QueueProducer sender;
-//
-//	@Test
-//	public void testReceive() throws Exception {
-//		sender.send(null);
-//	}
-
 }

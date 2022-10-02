@@ -2,25 +2,22 @@ package it.workstocks.service;
 
 import java.util.Set;
 
-import it.workstocks.dto.job.JobApplicationDto;
-import it.workstocks.dto.job.JobOfferDto;
+import it.workstocks.dto.job.SimpleJobOfferDto;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.exception.WorkstocksBusinessException;
 
 public interface ApplicationService {
-	long countAllApplication() throws WorkstocksBusinessException;
+	long countAllApplication();
 	
-	Set<JobOfferDto> retrieveMostPopularJobOffers() throws WorkstocksBusinessException;
+	Set<SimpleJobOfferDto> retrieveMostPopularJobOffers(Integer limit);
 	
 	void applyForApplicant(Long jobId, Long applicantId) throws WorkstocksBusinessException;
 	
 	void removeApplicantApplicationByJob(Long jobId, Long applicantId) throws WorkstocksBusinessException;
 	
-	PaginatedDtoResponse<JobApplicationDto> findApplicationsByApplicantId(Long id, Integer pageNumber) throws WorkstocksBusinessException;
+	PaginatedDtoResponse<SimpleJobOfferDto> findApplicationsByApplicantId(Long id, Integer pageNumber, Integer pageSize) throws WorkstocksBusinessException;
 	
 	boolean isJobOfferAppliedForApplicant(Long jobOfferId, Long applicantId) throws WorkstocksBusinessException;
-	
-	PaginatedDtoResponse<JobApplicationDto> findCandidatesByJobId(Long jobId, Integer pageNumber) throws WorkstocksBusinessException;
 
 	Integer countApplicationsByJobId(Long jobId) throws WorkstocksBusinessException;
 }

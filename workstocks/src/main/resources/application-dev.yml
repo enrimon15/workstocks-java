@@ -47,8 +47,22 @@ spring:
 ######### WORKSTOCKS PROPERTIES ###############
 ###############################################
 
-error:
-  show: false
+jwt:
+  token:
+    #Header in cui il backend si aspetta il token
+    header: Authorization
+    #prefisso del token nell'header
+    prefix: Bearer
+  #chiave segreta utilizzata da jwt  
+  secret: workstock_secret
+  #periodo di validita del token(s) 86400=24h
+  expiration: 86400
+
+
+
+###############################################
+######### WORKSTOCKS PROPERTIES ###############
+###############################################
 
 workstocks:
   job-alert:
@@ -56,6 +70,14 @@ workstocks:
     cron-five-minutes: '0 */5 * * * *' #ogni 5 minuti 
   broker-url: tcp://localhost:61616
   queue-name: workstocks-queue
-  admin-api-key: c8835783-f7db-40ec-a5b2-621f0c7c1d90
-  reset-password-validity: 3600 #1h in second
-  site-url: http://localhost:8080
+  error:
+    show: false
+  admin:
+    api-key: c8835783-f7db-40ec-a5b2-621f0c7c1d90
+  reset-password:
+    token-validity: 3600 #1h in second
+  site:
+    protocol: http
+    host: localhost
+    port: 9100
+    url: ${workstocks.site.protocol}://${workstocks.site.host}:${workstocks.site.port}${server.servlet.context-path}

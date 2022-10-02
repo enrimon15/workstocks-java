@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,13 @@ import it.workstocks.configuration.WorkstocksProperties;
 import it.workstocks.entity.job.JobOffer;
 import it.workstocks.entity.user.applicant.Applicant;
 import it.workstocks.exception.WorkstocksBusinessException;
-import it.workstocks.presentation.Routes;
 import it.workstocks.queue.message.EmailMessageJob;
+import it.workstocks.repository.ApplicantRepository;
 import it.workstocks.repository.JobOfferRepository;
-import it.workstocks.repository.user.ApplicantRepository;
 import it.workstocks.service.EmailService;
+import it.workstocks.utils.ErrorUtils;
 import it.workstocks.utils.MailType;
+import it.workstocks.utils.Translator;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -46,6 +48,9 @@ public class EmailServiceImpl implements EmailService {
 	@Autowired
 	private WorkstocksProperties props;
 	
+	@Autowired
+	private Translator translator;
+
 	private static final String MAIL_OBJECT_APPLY_APPLICANT = "Application correctly sent";
 	private static final String MAIL_OBJECT_APPLY_COMPANY = "Job offer application received";
 	private static final String MAIL_OBJECT_JOB_ALERT = "New Job Offer Alert";
@@ -68,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
 		param.put("surname", surname);
 		param.put("jobOfferName", jobOffer.getTitle());
 		param.put("companyName", jobOffer.getCompany().getName());
-		param.put("url", props.getSiteUrl() + Routes.ROOT_PUBLIC + Routes.JOB_OFFER + "?id=" + emailMessage.getJobOfferId());
+		param.put("url", props.getSite().getUrl() + "/v1/job-offers/" + emailMessage.getJobOfferId());
 
 		sendMail(userEmail, MAIL_OBJECT_APPLY_APPLICANT, param, MailType.APPLICATION_APPLICANT);
 		sendMail(companyEmail, MAIL_OBJECT_APPLY_COMPANY, param, MailType.APPLICATION_COMPANY);
@@ -90,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
 		param.put("surname", surname);
 		param.put("jobOfferName", jobOffer.getTitle());
 		param.put("companyName", jobOffer.getCompany().getName());
-		param.put("url", props.getSiteUrl() + Routes.ROOT_PUBLIC + Routes.JOB_OFFER + "?id=" + emailMessage.getJobOfferId());
+		param.put("url", props.getSite().getUrl() + "/v1/job-offers/" + emailMessage.getJobOfferId());
 		
 		sendMail(userEmail, MAIL_OBJECT_JOB_ALERT, param, MailType.JOB_ALERT);
 	}
@@ -98,14 +103,14 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	public void sendResetToken(String emailTo, String token) throws WorkstocksBusinessException {
 		Map<String, String> param = new HashMap<>();
-		param.put("url", props.getSiteUrl() + Routes.ROOT_RESET_PASSWORD + Routes.PASSWORD_CHANGE_PASSWORD + "?token=" + token);
+		param.put("url", props.getSite().getUrl() + "/v1/auth/reset-password" + "?token=" + token);
 		sendMail(emailTo, MAIL_RESET_OBJECT, param, MailType.RESET_PASSWORD);
 	}
 	
 	@Override
 	public void sendContactRequest(String emailTo, String emailFrom, String sourceTextMessage) throws WorkstocksBusinessException {
 		Map<String, String> param = new HashMap<>();
-		param.put("url", props.getSiteUrl());
+		param.put("url", props.getSite().getUrl());
 		param.put("emailFrom", emailFrom);
 		param.put("message", sourceTextMessage);
 		sendMail(emailTo, MAIL_OBJECT_CONTACT, param, MailType.CONTACT);
@@ -118,7 +123,7 @@ public class EmailServiceImpl implements EmailService {
 		}
 
 		try {
-			String process = templateEngine.process(mailType.getTemplate().getTemplate(), context);
+			String process = templateEngine.process(mailType.getTemplate(), context);
 			javax.mail.internet.MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 			helper.setSubject(object);
@@ -127,8 +132,8 @@ public class EmailServiceImpl implements EmailService {
 			helper.setFrom("workstocksMail", "Work-Stocks");
 			javaMailSender.send(mimeMessage);
 		} catch (MessagingException | UnsupportedEncodingException e) {
-			log.error("Impossibile inviare mail " + mailType.name() + ": " + e);
-			throw new WorkstocksBusinessException("Impossibile inviare mail " + mailType.name(),e.getCause());
+			log.error("Unable to send email " + mailType.name() + ": " + e);
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.EMAIL, new Object[] {mailType.name()}), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

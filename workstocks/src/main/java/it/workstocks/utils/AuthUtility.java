@@ -6,12 +6,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import it.workstocks.dto.user.UserDto;
-import it.workstocks.dto.user.applicant.SimpleApplicantDto;
-import it.workstocks.dto.user.company.SimpleCompanyOwnerDto;
 import it.workstocks.entity.user.User;
+import it.workstocks.security.Roles;
 import it.workstocks.security.UserDetailsImpl;
 
 public class AuthUtility {
+	
+	public static final String PERMIT_ALL = "permitAll()";
+	public static final String IS_APPLICANT = "hasRole('" + Roles.APPLICANT + "')";
 	
 	public static Authentication getAuth() {
 		return SecurityContextHolder.getContext().getAuthentication();
@@ -27,22 +29,9 @@ public class AuthUtility {
 		}
 	}
 	
-	public static SimpleApplicantDto getCurrentApplicant()  {
+	public static UserDto getCurrentApplicant()  {
 		UserDto user = getCurrentUser();
-		if (user instanceof SimpleApplicantDto) {
-			return (SimpleApplicantDto) user;
-		} else {
-			return null;
-		}
-	}
-	
-	public static SimpleCompanyOwnerDto getCurrentCompanyOwner()  {
-		UserDto user = getCurrentUser();
-		if (user instanceof SimpleCompanyOwnerDto) {
-			return (SimpleCompanyOwnerDto) user;
-		} else {
-			return null;
-		}
+		return user;
 	}
 	
 	public static boolean hasRole(String roleName) {		

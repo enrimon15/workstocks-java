@@ -4,15 +4,16 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import it.workstocks.dao.IApplicantDao;
 import it.workstocks.dto.mapper.EntityMapper;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.dto.search.PaginatedRequest;
-import it.workstocks.dto.user.applicant.SimpleApplicantDto;
+import it.workstocks.dto.user.applicant.BasicApplicant;
+import it.workstocks.dto.user.applicant.SimpleApplicanDto;
 import it.workstocks.dto.user.applicant.cv.CertificationDto;
 import it.workstocks.dto.user.applicant.cv.ExperienceDto;
 import it.workstocks.dto.user.applicant.cv.QualificationDto;
@@ -25,13 +26,16 @@ import it.workstocks.entity.user.applicant.curricula.Experience;
 import it.workstocks.entity.user.applicant.curricula.Qualification;
 import it.workstocks.entity.user.applicant.curricula.Skill;
 import it.workstocks.exception.WorkstocksBusinessException;
+import it.workstocks.repository.ApplicantRepository;
 import it.workstocks.repository.CertificateRepository;
 import it.workstocks.repository.ExperienceRepository;
 import it.workstocks.repository.QualificationRepository;
 import it.workstocks.repository.SkillRepository;
-import it.workstocks.repository.user.ApplicantRepository;
+import it.workstocks.repository.custom.IApplicantDao;
 import it.workstocks.service.ApplicantService;
 import it.workstocks.utils.AuthUtility;
+import it.workstocks.utils.ErrorUtils;
+import it.workstocks.utils.Translator;
 
 @Service
 @Transactional(readOnly = true)
@@ -56,6 +60,9 @@ public class ApplicantServiceImpl implements ApplicantService {
 	private SkillRepository skillRepository;
 	
 	@Autowired
+	private Translator translator;
+	
+	@Autowired
 	private IApplicantDao applicantDao;
 	
 	private Applicant findOptionalApplicant(Long id) throws WorkstocksBusinessException {
@@ -63,25 +70,41 @@ public class ApplicantServiceImpl implements ApplicantService {
 		if (applicant.isPresent()) {
 			return applicant.get();
 		} else {
-			throw new WorkstocksBusinessException("Applicant not found");
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"applicant", id}),HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@Override
+	public void checkApplicantExistenceById(Long id) throws WorkstocksBusinessException {
+		boolean exist = applicantRepository.existsById(id);
+		if (!exist) {
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"applicant", id}),HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@Override
-	public SimpleApplicantDto findApplicantById(Long id) throws WorkstocksBusinessException {
-		return mapper.toSimpleDto(findOptionalApplicant(id));
+	public BasicApplicant findApplicantById(Long id) throws WorkstocksBusinessException {
+		return mapper.toBasicApplicant(findOptionalApplicant(id));
 	}
 	
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
 	@Override
-	public void updateApplicantProfile(SimpleApplicantDto applicantDto) throws WorkstocksBusinessException {
-		Applicant applicant = findOptionalApplicant(applicantDto.getId());
+	public void updateApplicantProfile(BasicApplicant applicantDto, Long applicantId) throws WorkstocksBusinessException {
+		Applicant applicant = findOptionalApplicant(applicantId);
 		mapper.updateApplicant(applicantDto, applicant);
-		if(applicantDto.getAvatar() != null) applicant.setAvatar(applicantDto.getAvatar());
-
 		applicant = applicantRepository.save(applicant);
 		
 		AuthUtility.renewAuthenticationPrincipal(applicant);
+	}
+	
+	@Transactional(rollbackFor = WorkstocksBusinessException.class)
+	@Override
+	public boolean upsertApplicantPhoto(Long applicantId, byte[] photo) throws WorkstocksBusinessException {
+		Applicant applicant = findOptionalApplicant(applicantId);
+		boolean isAdd = applicant.getAvatar() == null || applicant.getAvatar().length <= 0;
+		applicant.setAvatar(photo);
+		applicant = applicantRepository.save(applicant);
+		return isAdd;
 	}
 
 	@Override
@@ -98,6 +121,7 @@ public class ApplicantServiceImpl implements ApplicantService {
 
 	@Override
 	public Set<CertificationDto> findApplicantCertificates(Long id) throws WorkstocksBusinessException {
+		findOptionalApplicant(id);
 		Set<Certification> certificates = certificateRepository.findAllByApplicantIdOrderByDateDesc(id);
 		return mapper.toDtoCertificationCollection(certificates);
 	}
@@ -110,47 +134,52 @@ public class ApplicantServiceImpl implements ApplicantService {
 
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addApplicantQualification(QualificationDto qualificationDto) throws WorkstocksBusinessException {
+	public Long addApplicantQualification(QualificationDto qualificationDto) throws WorkstocksBusinessException {
 		Qualification qualification = mapper.toEntity(qualificationDto);
 		Applicant applicant = new Applicant();
 		applicant.setId(AuthUtility.getCurrentApplicant().getId());
 		qualification.setApplicant(applicant);
 		
 		qualificationRepository.save(qualification);
+		return qualification.getId();
 	}
 	
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addApplicantCertificate(CertificationDto certificationDto) throws WorkstocksBusinessException {
+	public Long addApplicantCertificate(CertificationDto certificationDto) throws WorkstocksBusinessException {
 		Certification certification = mapper.toEntity(certificationDto);
 		Applicant applicant = new Applicant();
 		applicant.setId(AuthUtility.getCurrentApplicant().getId());
 		certification.setApplicant(applicant);
 		
 		certificateRepository.save(certification);
+		
+		return certification.getId();
 	}
 
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addApplicantExperience(ExperienceDto experienceDto) throws WorkstocksBusinessException {
+	public Long addApplicantExperience(ExperienceDto experienceDto) throws WorkstocksBusinessException {
 		Experience experience = mapper.toEntity(experienceDto);
 		Applicant applicant = new Applicant();
 		applicant.setId(AuthUtility.getCurrentApplicant().getId());
 		experience.setApplicant(applicant);
 		
 		experienceRepository.save(experience);
+		return experience.getId();
 	}
 
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addApplicantSkill(SkillDto skillDto) throws WorkstocksBusinessException {
+	public Long addApplicantSkill(SkillDto skillDto) throws WorkstocksBusinessException {
 		Skill skill = mapper.toEntity(skillDto);
 		Applicant applicant = new Applicant();
 		applicant.setId(AuthUtility.getCurrentApplicant().getId());
 		skill.setApplicant(applicant);
 		skill.setSkillType(SkillType.APPLICANT);
 		
-		skillRepository.save(skill);
+		skill = skillRepository.save(skill);
+		return skill.getId();	
 	}
 	
 	private Qualification getOptionalApplicantQualification(Long id) throws WorkstocksBusinessException {
@@ -158,12 +187,12 @@ public class ApplicantServiceImpl implements ApplicantService {
 		if (q.isPresent()) {
 			Qualification qualification = q.get();
 			if (!AuthUtility.compareCurrentUser(qualification.getApplicant().getId())) {
-				throw new AccessDeniedException("user unauthorized");
+				throw new AccessDeniedException(String.format("User with id: %d unauthorized to delete Skill with id %d",qualification.getApplicant().getId(),id));
 			}
 			
 			return qualification;
 		} else {
-			throw new WorkstocksBusinessException("qualification not found");
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"qualification", id}),HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -177,12 +206,12 @@ public class ApplicantServiceImpl implements ApplicantService {
 		if (e.isPresent()) {
 			Experience experience = e.get();
 			if (!AuthUtility.compareCurrentUser(experience.getApplicant().getId())) {
-				throw new AccessDeniedException("user unauthorized");
+				throw new AccessDeniedException(String.format("User with id: %d unauthorized to delete Skill with id %d",experience.getApplicant().getId(),id));
 			}
 			
 			return experience;
 		} else {
-			throw new WorkstocksBusinessException("experience not found");
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"experience", id}),HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -196,12 +225,12 @@ public class ApplicantServiceImpl implements ApplicantService {
 		if (c.isPresent()) {
 			Certification certification = c.get();
 			if (!AuthUtility.compareCurrentUser(certification.getApplicant().getId())) {
-				throw new AccessDeniedException("user unauthorized");
+				throw new AccessDeniedException(String.format("User with id: %d unauthorized to delete Skill with id %d",certification.getApplicant().getId(),id));
 			}
 			
 			return certification;
 		} else {
-			throw new WorkstocksBusinessException("certification not found");
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"certification", id}),HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -216,16 +245,16 @@ public class ApplicantServiceImpl implements ApplicantService {
 			Skill skill = s.get();
 			
 			if (skill.getApplicant() == null || !skill.getSkillType().equals(SkillType.APPLICANT)) {
-				throw new WorkstocksBusinessException("skill not found");
+				throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"skill", id}),HttpStatus.NOT_FOUND);
 			}
 			
 			if (!AuthUtility.compareCurrentUser(skill.getApplicant().getId())) {
-				throw new AccessDeniedException("user unauthorized");
+				throw new AccessDeniedException(String.format("User with id: %d unauthorized to get Skill with id %d",skill.getApplicant().getId(),id));
 			}
 			
 			return skill;
 		} else {
-			throw new WorkstocksBusinessException("skill not found");
+			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.NOT_FOUND, new Object[] {"skill", id}),HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -264,11 +293,12 @@ public class ApplicantServiceImpl implements ApplicantService {
 
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void addApplicantCv(byte[] cv) throws WorkstocksBusinessException {
+	public boolean upsertApplicantCv(byte[] cv) throws WorkstocksBusinessException {
 		Applicant applicant = findOptionalApplicant(AuthUtility.getCurrentApplicant().getId());
+		boolean isAdd = applicant.getCurricula() == null && applicant.getCurricula().length <= 0;
 		applicant.setCurricula(cv);
 		applicant = applicantRepository.save(applicant);
-		AuthUtility.getCurrentApplicant().setCurricula(cv);
+		return isAdd;
 	}
 
 	@Override
@@ -314,13 +344,13 @@ public class ApplicantServiceImpl implements ApplicantService {
 	}
 	
 	@Override
-	public PaginatedDtoResponse<SimpleApplicantDto> searchApplicants(PaginatedRequest request) {
+	public PaginatedDtoResponse<SimpleApplicanDto> searchApplicants(PaginatedRequest request) {
 		PaginatedEntityResponse<Applicant> daoResponse = applicantDao.searchApplicant(request);
 
-		PaginatedDtoResponse<SimpleApplicantDto> dtoReponse = new PaginatedDtoResponse<>();
+		PaginatedDtoResponse<SimpleApplicanDto> dtoReponse = new PaginatedDtoResponse<>();
 		
 		dtoReponse.setResponse(daoResponse.getReponse());
-		dtoReponse.setElements(mapper.toDtoSimpleApplicantCollection(daoResponse.getElements()));
+		dtoReponse.setElements(mapper.toDtoApplicantCollection(daoResponse.getElements()));
 		
 
 		return dtoReponse;
@@ -332,8 +362,14 @@ public class ApplicantServiceImpl implements ApplicantService {
 	}
 	
 	@Override
-	public Set<SimpleApplicantDto> getAllApplicantsJobAlertingCompany(Long companyId) {		
-		return mapper.toDtoSimpleApplicantCollection(applicantRepository.findByJobAlertCompaniesId(companyId));
+	public byte[] findApplicantCvById(Long id) throws WorkstocksBusinessException {
+		Applicant applicant = findOptionalApplicant(id);
+		return applicant.getCurricula();
+	}
+
+	@Override
+	public byte[] findApplicantAvatarById(Long id) throws WorkstocksBusinessException {
+		return findOptionalApplicant(id).getAvatar();
 	}
 
 }

@@ -1,7 +1,5 @@
 package it.workstocks.service;
 
-import java.util.Set;
-
 import it.workstocks.dto.blog.CommentDto;
 import it.workstocks.dto.blog.NewsDto;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
@@ -9,24 +7,24 @@ import it.workstocks.exception.WorkstocksBusinessException;
 
 
 public interface NewsService {
+
+	PaginatedDtoResponse<NewsDto> findAllPaginatedTitleFiltering(Integer pageNumber, Integer pageSize, String titleFilter);
+
+	NewsDto findById(String id) throws WorkstocksBusinessException;
 	
-	PaginatedDtoResponse<NewsDto> findAllNewsPaginatedAdmin(int pageNumber) throws WorkstocksBusinessException;
-
-	PaginatedDtoResponse<NewsDto> findAllPaginatedTitleFiltering(int pageNumber, String titleFilter) throws WorkstocksBusinessException;
-
-	NewsDto findById(String id, boolean isAdminDetail) throws WorkstocksBusinessException;
+	byte[] findPhotoById(String id) throws WorkstocksBusinessException;
 	
-	void upsertNews(NewsDto newsDto) throws WorkstocksBusinessException;
+	boolean checkUserLike(String newsId) throws WorkstocksBusinessException;
 
-	void deleteNewsById(String id) throws WorkstocksBusinessException;
+	void addLike(String newsId) throws WorkstocksBusinessException;
+	
+	void removeLike(String newsId) throws WorkstocksBusinessException;
 
-	void addOrRemoveLike(String newsId, boolean isAdding) throws WorkstocksBusinessException;
+	void deleteComment(String commentId, String newsId) throws WorkstocksBusinessException;
 
-	void deleteComment(String commentId) throws WorkstocksBusinessException;
+	String addComment(CommentDto commentDto, String newsId) throws WorkstocksBusinessException;
 
-	void addComment(CommentDto commentDto, String newsId) throws WorkstocksBusinessException;
-
-	Set<NewsDto> findLatests(int numberOfNews) throws WorkstocksBusinessException;
-
-	PaginatedDtoResponse<CommentDto> findCommentsPaginatedByNewsId(String newsId, int pageNumber) throws WorkstocksBusinessException;
+	PaginatedDtoResponse<CommentDto> findCommentsPaginatedByNewsId(String newsId, Integer pageNumber, Integer limit) throws WorkstocksBusinessException;
+	
+	int countNewsComments(String newsId);
 }

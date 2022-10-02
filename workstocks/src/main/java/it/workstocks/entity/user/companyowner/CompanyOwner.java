@@ -13,6 +13,6 @@ import lombok.Setter;
 @Setter
 @Entity
 public class CompanyOwner extends User {
-	@OneToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+	@OneToOne(optional = false, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Company company;
 }

@@ -1,9 +1,12 @@
 package it.workstocks.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 @Component
@@ -12,11 +15,28 @@ public class WorkstocksProperties {
 	
 	private String brokerUrl;
 	
+	private String dateFormat;
+	
 	private String queueName;
+
+	@NestedConfigurationProperty
+	private Site site;
 	
-	private String adminApiKey;
+	@NestedConfigurationProperty
+	private ResetPassword resetPassword;
 	
-	private String resetPasswordValidity;
+	@Getter
+	@Setter
+	public static class Site {
+		private String protocol;
+		private String host;
+		private String port;
+		private String url;
+	}
 	
-	private String siteUrl;
+	@Getter
+	@Setter
+	public static class ResetPassword {
+		private String tokenValidity;
+	}
 }

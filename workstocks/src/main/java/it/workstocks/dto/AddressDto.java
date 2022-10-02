@@ -1,5 +1,7 @@
 package it.workstocks.dto;
 
+import java.util.Optional;
+
 import javax.validation.constraints.Size;
 
 import lombok.Getter;
@@ -8,12 +10,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddressDto {
-	@Size(min=3, max = 50)
-	private String street;
 	
-	@Size(min=3, max = 60)
-	private String city;
+	private Optional<@Size(min=3, max = 50) String> street;
 	
-	@Size(min=2, max = 2)
-	private String country;
+	private Optional<@Size(min=3, max = 50) String> city;
+	
+	private Optional<@Size(min=2, max = 2) String> country;
 }

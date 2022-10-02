@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import it.workstocks.entity.user.User;
-import it.workstocks.repository.user.UserRepository;
+import it.workstocks.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Component

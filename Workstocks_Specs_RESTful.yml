@@ -1,0 +1,791 @@
+######################
+### API Workstocks ###
+######################
+
+
+### URL base http://<server>/workstocks/rest
+
+
+###### SEARCH ######
+
+# ricerca filtrata di utenti
+Operazione: searchApplicants
+Url: .../applicants/search?name={name}&address={address}&job-title={jobTitle}&skill={skill}&salary={salary}&page={page}&limit={limit}
+Metodo: GET
+Input:
+    page: integer, limit: integer, name: string, address: string, jobTitle: string, skill: string, salary: integer
+Output: 
+	200: [{name: "...", surname: "...", jobTitle: "...", detailsURL: ".../applicants/{applicantId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong filters
+
+# ricerca filtrata di offerte di lavoro
+Operazione: searchJobOffers?description={description}&address={address}&company={company}&skill={skill}&salary={salary}&experience={experience}&contract-type={contractType}&page={page}&limit={limit}
+Url: .../job-offers/search
+Metodo: GET
+Input:
+    page: integer, limit: integer, description: string, address: string, company: string, skill: string, salary: integer, experience: integer, contractType: string
+Output: 
+	200: [{jobTitle: "...", contractType: "...", workingPlace: {...}, company: {name: "...", detailsURL: ".../companies/{companyId}"}, detailsURL: ".../job-offers/{jobOfferId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong filters	
+
+# ricerca filtrata di aziende
+Operazione: searchCompanies?name={name}&address={address}&foundation-year={foundation-year}&employees-number={employeesNumber}&page={page}&limit={limit}
+Url: .../companies/search
+Metodo: GET
+Input:
+    page: integer, limit: integer, name: string, address: string, foundationYear: integer, employeesNumber: integer
+Output: 
+	200: [{name: "...", companyForm: "...", employeesNumber: 100, website: "...", detailsURL: ".../companies/{companyId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong filters	
+
+
+###### APPLICANT ######
+
+# get del singolo utente
+Operazione: getApplicantById
+Url: .../applicants/{applicantId}
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: {name: "...", surname: "...", birthday: "...", jobTitle: "..." ...., overview: "...", address: {...}, cv: ".../applicants/{applicantId}/cv" skills: ".../applicants/{applicantId}/skills", qualifications: ".../applicants/{applicantId}/qualifications", ...}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found 	
+
+# aggiornamento utente
+Operazione: updateApplicant
+Url: .../applicants/{applicantId}
+Metodo: PATCH
+Input:
+    applicantId: integer
+Payload:
+	{name: "...", surname: "...", birthday: "...", jobTitle: "..." ...., overview: "...", ...}	
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong payload 
+	404: applicant not found  
+
+# get delle competenze dell'utente
+Operazione: getApplicantSkills
+Url: .../applicants/{applicantId}/skills
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: [{name: "...", assestment: "..."},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found
+
+# get delle certificazioni dell'utente
+Operazione: getApplicantCertifications
+Url: .../applicants/{applicantId}/certifications
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: [{name: "...", description: "...", credential: "...", link: "...", date: "...", endDate: "..."},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found   
+
+# get delle qualifiche dell'utente
+Operazione: getApplicantQualifications
+Url: .../applicants/{applicantId}/qualifications
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: [{name: "...", description: "...", evaluation: "...", institute: "...", startDate: "...", endDate: "..."},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found    
+
+# get delle esperienze lavorative dell'utente
+Operazione: getApplicantExperiences
+Url: .../applicants/{applicantId}/experiences
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: [{jobTitle: "...", description: "...", company: "...", startDate: "...", endDate: "..."},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found   
+
+# get delle cv utente
+Operazione: getApplicantCv
+Url: .../applicants/{applicantId}/cv
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: (binario)
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found   
+
+
+###### JOB OFFER ######
+
+# get della singola offerta lavorativa
+Operazione: getJobOfferById
+Url: .../job-offers/{id}
+Metodo: GET
+Input:
+    id: integer
+Output: 
+	200: [{jobTitle: "...", description: "...", salary: "...", contractType: "...", startDate: "...", endDate: "...", company: {name: "...", detailsURL: ".../companies/{companyId}"}, workingPlace: {address: "...", city: "...", country: "..."}},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: job offer not found  
+
+# get delle offerte lavorative salvate nei preferiti dall'utente
+Operazione: getApplicantFavoritesJobOffer
+Url: .../applicants/{applicantId}/favourites
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: [{jobTitle: "...", contractType: "...", workingPlace: {...}, company: {name: "...", detailsURL: ".../companies/{companyId}"}, detailsURL: ".../job-offers/{jobOfferId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found
+
+# aggiunta di un'offerta lavorativa nei preferiti utente
+Operazione: addApplicantFavoriteJobOffer
+Url: .../applicants/{applicantId}/favourites
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+    jobOffer: integer
+Output: 
+	201: .../applicants/{applicantId}/favorites/{jobOfferId}
+	Location Header: .../applicants/{applicantId}/favorites/{jobOfferId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found
+	400: wrong job offer payload 
+
+# rimozione di un'offerta lavorativa nei preferiti utente
+Operazione: deleteApplicantFavoriteJobOffer
+Url: .../applicants/{applicantId}/favorites/{jobOfferId}
+Metodo: DELETE
+Input:
+    applicantId: integer, jobOfferId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or job offer not found 
+
+# verifica se un'offerta lavorativa risulta nei preferiti utente
+Operazione: checkApplicantFavoriteJobOffer
+Url: .../applicants/{applicantId}/favorites/{jobOfferId}
+Metodo: GET
+Input:
+    applicantId: integer, jobOfferId: integer
+Output: 
+	200: boolean
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or job offer not found 
+
+# aggiunta di una candidatura per un'offerta di lavoro
+Operazione: addApplicantApplication
+Url: .../applicants/{applicantId}/applications
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+    jobOffer: integer
+Output: 
+	201: .../applicants/{applicantId}/applications/{jobOfferId}
+	Location Header: .../applicants/{applicantId}/applications/{jobOfferId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found
+	400: wrong job offer payload
+
+# rimozione di una candidatura per un'offerta di lavoro
+Operazione: deleteApplicantApplication
+Url: .../applicants/{applicantId}/applications/{jobOfferId}
+Metodo: DELETE
+Input:
+    applicantId: integer, jobOfferId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or job offer not found 	
+
+# get delle candidature per tutte le offerte di lavoro di un'utente
+Operazione: getApplicantApplications
+Url: .../applicants/{applicantId}/applications
+Metodo: GET
+Input:
+    applicantId: integer
+Output: 
+	200: [{jobTitle: "...", contractType: "...", workingPlace: {...}, company: {name: "...", detailsURL: ".../companies/{companyId}"}, detailsURL: ".../job-offers/{jobOfferId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found
+
+# verifica se una candidatura è stata effettuata per un'offerta di lavoro
+Operazione: checkApplicantApplication
+Url: .../applicants/{applicantId}/applications/{jobOfferId}
+Metodo: GET
+Input:
+    applicantId: integer, jobOfferId: integer
+Output: 
+	200: boolean
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or job offer not found 
+
+
+###### COMPANY ######
+
+# get della singola azienda
+Operazione: getCompanyById
+Url: .../companies/{companyId}
+Metodo: GET
+Input:
+    companyId: integer
+Output: 
+	200: {name: "...", companyForm: "...", vatNumber: "...", foundationYear: 1990, employeesNumber: 100, overview: "...", website: "...", address: {...}, reviews: {avgRating: 4.3, number: 35},  detailsURL: ".../companies/{companyId}"}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: company not found 
+
+# aggiunta di un job alert (notifche ad ogni inserimento di una nuova offerta lavorativa da parte dell'azienda)
+Operazione: addJobAlert
+Url: .../applicants/{applicantId}/job-alerts
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+	company: integer
+Output: 
+	201: .../applicants/{applicantId}/job-alerts/{companyId}
+	Location Header: .../applicants/{applicantId}/job-alerts/{companyId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found 
+	400: wrong company payload 
+
+# rimozione di un job alert (notifche ad ogni inserimento di una nuova offerta lavorativa da parte dell'azienda)
+Operazione: deleteJobAlert
+Url: .../applicants/{applicantId}/job-alerts/{companyId}
+Metodo: DELETE
+Input:
+    applicantId: integer, companyId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or company not found 
+
+# verifica se un job alert esiste per una determinata azienda
+Operazione: checkJobAlert
+Url: .../applicants/{applicantId}/job-alerts/{companyId}
+Metodo: GET
+Input:
+    applicantId: integer, companyId: integer
+Output: 
+	200: boolean
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or company not found
+
+# get della recensione utente (loggato) per una determinata azienda
+Operazione: getCompanyReviewByLoggedApplicant
+Url: .../companies/{companyId}/reviews
+Metodo: GET
+Input:
+    companyId: integer
+Output: 
+	200: {rating: intero}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: company not found 	
+
+# aggiunta di una recensione per una determinata azienda
+Operazione: addCompanyReview
+Url: .../companies/{companyId}/reviews
+Metodo: POST
+Input:
+    companyId: integer
+Payload:
+		rating: integer
+Output:
+	201: .../companies/{companyId}/reviews/{applicantId}
+	Location Header: .../companies/{companyId}/reviews/{applicantId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: company not found
+	400: wrong rating payload
+
+# modifica di una recensione per una determinata azienda
+Operazione: updateCompanyReview
+Url: .../companies/{companyId}/reviews
+Metodo: PUT
+Input:
+    companyId: integer
+Payload:
+		rating: integer
+Output:
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: company not found
+	400: wrong rating payload										   
+
+
+##### MANAGE APPLICANT ONLINE CV #####
+
+# get singola skill utente
+Operazione: getApplicantSkillById
+Url: .../applicants/{applicantId}/skills/{skillId}
+Metodo: GET
+Input:
+    applicantId: integer, skillId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or skill not found  
+
+# get singola certificazione utente
+Operazione: getApplicantCertificationById
+Url: .../applicants/{applicantId}/certifications/{certificationId}
+Metodo: GET
+Input:
+    applicantId: integer, certificationId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or certifications not found   
+
+# get singola qualifica utente
+Operazione: getApplicantQualificationById
+Url: .../applicants/{applicantId}/qualifications/{qualificationId}
+Metodo: GET
+Input:
+    applicantId: integer, qualificationId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or qualifications not found    
+
+# # get singola esperienza lavorativa dell'utente
+Operazione: getApplicantExperienceById
+Url: .../applicants/{applicantId}/experiences/{experienceId}
+Metodo: GET
+Input:
+    applicantId: integer, experienceId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or experience not found
+
+# aggiunta di una competenza utente
+Operazione: addApplicantSkill
+Url: .../applicants/{applicantId}/skills
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+	{name: "...", description: "...", assestment: "..."}
+Output: 
+	201: .../applicants/{applicantId}/skills/{skillId}
+	Location Header: ../applicants/{applicantId}/skills/{skillId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found  
+	400: wrong skill payload
+
+# aggiunta di una certificazione utente
+Operazione: addApplicantCertification
+Url: .../applicants/{applicantId}/certifications
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+	{name: "...", description: "...", credential: "...", link: "..."}	
+Output: 
+	201: ../applicants/{applicantId}/certifications/{certificationId}
+	Location Header: ../applicants/{applicantId}/certifications/{certificationId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found  
+	400: wrong certification payload 
+
+# aggiunta di una qualifica utente
+Operazione: addApplicantQualification
+Url: .../applicants/{applicantId}/qualifications
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+	{name: "...", description: "...", evaluation: "...", institute: "..."}	
+Output: 
+	201: ../applicants/{applicantId}/qualifications/{qualificationId}
+	Location Header: ../applicants/{applicantId}/qualifications/{qualificationId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found  
+	400: wrong qualification payload  
+
+# aggiunta di una esperienza lavorativa per l'utente
+Operazione: addApplicantExperience
+Url: .../applicants/{applicantId}/experiences
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+	{jobTitle: "...", description: "...", company: "...", startDate: "...", endDate: "..."}
+Output: 
+	201: ../applicants/{applicantId}/experiences/{experienceId}
+	Location Header: ../applicants/{applicantId}/experiences/{experienceId}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found  
+	400: wrong experience payload  
+
+# aggiunta del cv per l'utente (con possibilità di autogenerarlo)
+Operazione: addApplicantCv
+Url: .../applicants/{applicantId}/cv
+Metodo: POST
+Input:
+    applicantId: integer
+Payload:
+	{autogenerate: boolean, cv: base64}
+Output: 
+	201: .../applicants/{applicantId}/cv
+	Location Header: .../applicants/{applicantId}/cv
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found  
+	400: wrong cv payload 
+
+# aggiornamento di una competenza utente
+Operazione: updateApplicantSkill
+Url: .../applicants/{applicantId}/skills/{skillId}
+Metodo: PUT
+Input:
+    applicantId: integer, skillId: integer
+Payload:
+	{name: "...", description: "...", assestment: "..."}	
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or skill not found 
+	400: wrong skill payload   
+
+# aggiornamento di una certificazione utente
+Operazione: updateApplicantCertification
+Url: .../applicants/{applicantId}/certifications/{certificationId}
+Metodo: PUT
+Input:
+    applicantId: integer, certificationId: integer
+Payload:
+	{name: "...", description: "...", credential: "...", link: "..."}		
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or certification not found 
+	400: wrong certification payload   
+
+# aggiornamento di una qualifica utente
+Operazione: updateApplicantQualification
+Url: .../applicants/{applicantId}/qualifications/{qualificationId}
+Metodo: PUT
+Input:
+    applicantId: integer, qualificationId: integer
+Payload:
+	{name: "...", description: "...", evaluation: "...", institute: "..."}		
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or qualification not found 
+	400: wrong qualification payload     
+
+# aggiornamento di una esperienza lavorativa dell'utente
+Operazione: updateApplicantExperience
+Url: .../applicants/{applicantId}/experiences/{experienceId}
+Metodo: PUT
+Input:
+    applicantId: integer, experienceId: integer
+Payload:
+	{jobTitle: "...", description: "...", company: "...", startDate: "...", endDate: "..."}	
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or experience not found 
+	400: wrong experience payload  
+
+# aggiornamento del cv utente
+Operazione: updateApplicantCv
+Url: .../applicants/{applicantId}/cv?autogenerate={autogenerate}
+Metodo: PUT
+Input:
+    applicantId: integer, autogenerate: boolean
+Payload:
+	(binario)	
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant not found 
+	400: wrong cv payload
+
+# rimozione di una competenza utente
+Operazione: deleteApplicantSkillById
+Url: .../applicants/{applicantId}/skills/{skillId}
+Metodo: DELETE
+Input:
+    applicantId: integer, skillId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or skill not found  
+
+# rimozione di una certificazione utente
+Operazione: deleteApplicantCertificationById
+Url: .../applicants/{applicantId}/certifications/{certificationId}
+Metodo: DELETE
+Input:
+    applicantId: integer, certificationId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or certifications not found   
+
+# rimozione di una qualifica utente
+Operazione: deleteApplicantQualificationById
+Url: .../applicants/{applicantId}/qualifications/{qualificationId}
+Metodo: DELETE
+Input:
+    applicantId: integer, qualificationId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or qualifications not found    
+
+# rimozione di una esperienza lavorativa dell'utente
+Operazione: deleteApplicantExperienceById
+Url: .../applicants/{applicantId}/experiences/{experienceId}
+Metodo: DELETE
+Input:
+    applicantId: integer, experienceId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: applicant or experience not found
+
+##### EXTRA #####
+
+# numero totale di utenti
+Operazione: countApplicants
+Url: .../applicants/count
+Metodo: POST
+Output: 
+	200: integer
+Errori: 
+	500: {code: 1, message: "..."}
+
+# numero totale di aziende
+Operazione: countCompanies
+Url: .../companies/count
+Metodo: POST
+Output: 
+	200: integer
+Errori: 
+	500: {code: 1, message: "..."}	
+
+# numero totale di offerte lavorative
+Operazione: countJobOffers
+Url: .../job-offers/count
+Metodo: POST
+Output: 
+	200: integer
+Errori: 
+	500: {code: 1, message: "..."}
+
+# numero totale di candidature
+Operazione: countApplications
+Url: .../applications/count
+Metodo: POST
+Output: 
+	200: integer
+Errori: 
+	500: {code: 1, message: "..."}
+
+# get delle offerte di lavoro più popolari (in base alle candidature)
+Operazione: getPopularJobOffers
+Url: .../job-offers/popular
+Metodo: GET
+Output: 
+	200: [{jobTitle: "...", contractType: "...", workingPlace: {...}, company: {name: "...", detailsURL: ".../companies/{companyId}"}, detailsURL: ".../job-offers/{jobOfferId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+
+# get delle aziende più popolari (in base alle recensioni)
+Operazione: getPopularCompanies
+Url: .../companies/popular
+Metodo: GET
+Output: 
+	200: [{name: "...", companyForm: "...", employeesNumber: 100, website: "...", detailsURL: ".../companies/{companyId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+
+# invio di una mail dall'utente verso l'azienda
+Operazione: sendEmail
+Url: .../applicant/email
+Metodo: POST
+Payload:
+    {subject: "...", from: "...", to: "...", body: "..."}
+Output: 
+	200
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong message payload
+
+
+##### NEWS #####
+
+# ricerca filtrata delle news
+Operazione: getNewsList
+Url: .../news?title={title}&page={page}&limit={limit}
+Metodo: GET
+Input:
+    title: string, page: integer, limit: integer
+Output: 
+	200: [{title: "...", body: "...", detailsURL: "../news/{newsId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}	
+	400: wrong filters
+
+# get di una singola news
+Operazione: getNewsById
+Url: .../news/{newsId}
+Metodo: GET
+Input:
+    newsId: integer
+Output: 
+	200: {title: "...", body: "...", image: "...", likes: 50, comments: ".../news/{newsId}/comments?page={page}&limit={limit}"}
+Errori: 
+	500: {code: 1, message: "..."}
+	404: news not found
+
+# get dei commenti di una determinata news
+Operazione: getNewsComments
+Url: .../news/{newsId}/comments?page={page}&limit={limit}
+Metodo: GET
+Input:
+    newsId: integer, page: integer, limit: integer
+Output: 
+	200: [{body: "...", user: {name: "...", detailURL: ".../applicants/{applicantId}"},...,{...}]
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong filters
+	404: news not found
+
+# aggiunta di un like ad una determinata news
+Operazione: addNewsLike
+Url: .../news/{newsId}/likes
+Metodo: POST
+Input:
+    newsId: integer
+Output: 
+	201: .../news/{newsId}/likes
+	Location Header: .../news/{newsId}/likes
+Errori: 
+	500: {code: 1, message: "..."}
+	404: news or applicant found	
+
+# rimozione di un like ad una determinata news (per l'utente loggato)
+Operazione: removeNewsLike
+Url: .../news/{newsId}/likes
+Metodo: DELETE
+Input:
+    newsId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: news or applicant not found
+
+# verifica se esiste il like utente ad una determinata news (per l'utente loggato)
+Operazione: checkNewsLike
+Url: .../news/{newsId}/likes
+Metodo: GET
+Input:
+    newsId: integer
+Output: 
+	200: boolean
+Errori: 
+	500: {code: 1, message: "..."}
+	404: news or applicant not found		
+
+# aggiunta di un commento ad una determinata news
+Operazione: addNewsComment
+Url: .../news/{newsId}/comments
+Metodo: POST
+Input:
+    newsId: integer
+Payload:
+	{body: "..."}	
+Output: 
+	201: .../news/{newsId}/comments
+	Location Header: .../news/{newsId}/comments
+Errori: 
+	500: {code: 1, message: "..."}
+	400: wrong comment payload
+	404: news not found
+
+# verifica se esiste il commento ad una determinata news (per l'utente loggato)
+Operazione: checkNewsComment
+Url: .../news/{newsId}/comments
+Metodo: GET
+Input:
+    newsId: integer
+Output: 
+	200: boolean
+Errori: 
+	500: {code: 1, message: "..."}
+	404: news not found			
+
+# aggiunta di un commento ad una determinata news
+Operazione: deleteNewsComment
+Url: .../news/{newsId}/comments/{commentId}
+Metodo: DELETE
+Input:
+    newsId: integer, commentId: integer
+Output: 
+	204
+Errori: 
+	500: {code: 1, message: "..."}
+	404: news or comment not found	

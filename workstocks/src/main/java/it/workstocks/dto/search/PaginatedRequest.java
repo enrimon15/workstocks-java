@@ -8,9 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PaginatedRequest {
-	public static final int PAGE_SIZE = 10;
 	@Min(value = 1L)
 	private int pageNumber;
+	
+	@Min(value = 1L)
+	private int pageSize;
 
 	private FiltersDto filters;
 
