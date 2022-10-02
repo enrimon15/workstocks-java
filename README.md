@@ -13,13 +13,13 @@ Inoltre, Work Stocks integra anche un comodo blog comprendente le ultime notizie
 <br/>
 
 ### LOW-FI
-#### ![Skeleton](<https://github.com/enrimon15/workstocks-java/tree/blob/main/docs/Ricerca_Offerte-Candidati-Aziende.png>)
+#### ![Skeleton](<https://github.com/enrimon15/workstocks-java/blob/main/docs/Ricerca_Offerte-Candidati-Aziende.png>)
 
  \
 <br/>
 
 ### HI-FI
-#### ![Demo_Image](<https://github.com/enrimon15/workstocks-java/blob/tree/main/docs/Lista_Offerte.png>)
+#### ![Demo_Image](<https://github.com/enrimon15/workstocks-java/blob/main/docs/Lista_Offerte.png>)
 
  \
 <br/>
