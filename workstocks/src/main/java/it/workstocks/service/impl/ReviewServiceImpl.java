@@ -58,9 +58,17 @@ public class ReviewServiceImpl implements ReviewService {
 	
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public void updateReview(ReviewDto dto, Long companyId) throws WorkstocksBusinessException {
+	public void upsertReview(ReviewDto dto, Long companyId) throws WorkstocksBusinessException {
 		ReviewKey key = buildReviewKey(companyId, AuthUtility.getCurrentApplicant().getId());
-		Review review = findOptionalReview(key);
+		Review review = new Review();
+		try {
+			review = findOptionalReview(key);
+		} catch (WorkstocksBusinessException e) {
+			review.setId(key);
+			review.setApplicantFromDto(AuthUtility.getCurrentApplicant().getId());
+			review.setCompanyFromDto(companyId);
+		}
+		
 		review.setRating(dto.getRating());
 		reviewRepository.save(review);
 	}
@@ -73,7 +81,15 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public ReviewDto findByCompanyId(Long companyId) throws WorkstocksBusinessException {
 		ReviewKey key = buildReviewKey(companyId, AuthUtility.getCurrentApplicant().getId());
-		return mapper.toDto(findOptionalReview(key));
+		Optional<Review> findReview = reviewRepository.findById(key);
+		ReviewDto reviewDto = new ReviewDto();
+		if (findReview.isPresent()) {
+			reviewDto = mapper.toDto(findReview.get());
+			reviewDto.setReviewed(true);
+		} else {
+			reviewDto.setReviewed(false);
+		}
+		return reviewDto;
 	}
 	
 	private ReviewKey buildReviewKey(Long companyId, Long applicantId) {

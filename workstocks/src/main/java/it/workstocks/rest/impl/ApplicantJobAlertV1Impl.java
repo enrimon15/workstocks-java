@@ -2,15 +2,12 @@ package it.workstocks.rest.impl;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import it.workstocks.configuration.WorkstocksProperties;
-import it.workstocks.dto.id.CompanyIdDto;
 import it.workstocks.dto.utility.CheckResultDto;
 import it.workstocks.exception.WorkstocksBusinessException;
 import it.workstocks.rest.ApplicantJobAlertV1;
@@ -18,8 +15,6 @@ import it.workstocks.service.ApplicantService;
 import it.workstocks.service.CompanyService;
 import it.workstocks.service.JobAlertService;
 import it.workstocks.utils.AuthUtility;
-import it.workstocks.utils.ErrorUtils;
-import it.workstocks.utils.Translator;
 
 @RestController
 public class ApplicantJobAlertV1Impl implements ApplicantJobAlertV1 {
@@ -35,9 +30,6 @@ public class ApplicantJobAlertV1Impl implements ApplicantJobAlertV1 {
 
 	@Autowired
 	private JobAlertService jobAlertService;
-	
-	@Autowired
-	private Translator translator; 
 
 	private UriComponentsBuilder uriBuilder;
 	
@@ -57,19 +49,14 @@ public class ApplicantJobAlertV1Impl implements ApplicantJobAlertV1 {
 	}
 
 	@Override
-	public ResponseEntity<Void> addJobAlert(Long applicantId, CompanyIdDto companyIdDto, Errors errors)
+	public ResponseEntity<Void> addJobAlert(Long applicantId, Long companyId)
 			throws WorkstocksBusinessException {
 
-		if (errors.hasErrors()) {
-			throw new WorkstocksBusinessException(
-					translator.toLocale(ErrorUtils.WRONG_PAYLOAD, new String[] {"company id"}), ErrorUtils.getErrorList(errors), HttpStatus.BAD_REQUEST);
-		}
-
-		checkForJobAlert(applicantId, companyIdDto.getCompanyId());
+		checkForJobAlert(applicantId, companyId);
 
 		return ResponseEntity.created(uriBuilder.cloneBuilder().path("/{companyId}")
 				.buildAndExpand(applicantId,
-						jobAlertService.addOrRemoveJobAlert(companyIdDto.getCompanyId(), applicantId, true))
+						jobAlertService.addOrRemoveJobAlert(companyId, applicantId, true))
 				.toUri()).build();
 	}
 

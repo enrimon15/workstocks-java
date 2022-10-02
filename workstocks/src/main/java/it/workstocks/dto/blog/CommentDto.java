@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +22,6 @@ public class CommentDto {
 	private String userAvatar;
 	
 	@NotBlank
-	@Size(min = 2)
 	private String body;
 	
 	public void convertBase64UserAvatar(byte[] avatar) {

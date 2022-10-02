@@ -1,18 +1,14 @@
 package it.workstocks.rest.impl;
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import it.workstocks.configuration.WorkstocksProperties;
@@ -31,12 +27,11 @@ import it.workstocks.service.CompanyService;
 import it.workstocks.service.JobOfferService;
 import it.workstocks.service.ReviewService;
 import it.workstocks.utils.ErrorUtils;
-import it.workstocks.utils.FileUtils;
 import it.workstocks.utils.Translator;
 import it.workstocks.validator.QueryParamValidator;
 
 @RestController
-public class CompaniesV1Impl implements CompaniesV1 {
+public class CompaniesRestServicesV1Impl implements CompaniesV1 {
 	
 	@Autowired
 	private CompanyService companyService;
@@ -71,7 +66,6 @@ public class CompaniesV1Impl implements CompaniesV1 {
 		PaginatedDtoResponse<SimpleCompanyDto> companies = companyService.searchCompanies(request);
 		for (SimpleCompanyDto company : companies.getElements()) {
 			company.setDetailsURL(uriBuilder.cloneBuilder().path("/{companyId}").buildAndExpand(company.getId()).toString());
-			company.setPhoto(uriBuilder.cloneBuilder().path("/{companyId}/photo").buildAndExpand(company.getId()).toString());
 		}
 			
 		return ResponseEntity.ok(companies);
@@ -95,33 +89,17 @@ public class CompaniesV1Impl implements CompaniesV1 {
 	public ResponseEntity<CompanyDto> getCompanyById(Long companyId) throws WorkstocksBusinessException {
 		CompanyDto company = companyService.findById(companyId);
 		company.setRatingStats(reviewService.findAverageRatingByCompanyId(companyId));
-		company.setWorkingPlaces(uriBuilder.cloneBuilder().path("/{companyId}/working-places").buildAndExpand(companyId).toString());
-		company.setPhoto(uriBuilder.cloneBuilder().path("/{companyId}/photo").buildAndExpand(company.getId()).toString());
-		company.setJobOffers(uriBuilder.cloneBuilder().path("/{companyId}/job-offers").buildAndExpand(company.getId()).toString());
+		company.setJobOffers(jobService.findByCompanyId(companyId, 4));
 		return ResponseEntity.ok(company);
 	}
 	
 	@Override
-	public ResponseEntity<StreamingResponseBody> getCompanyPhotoById(Long companyId) throws WorkstocksBusinessException {
+	public ResponseEntity<byte[]> getCompanyPhotoById(Long companyId) throws WorkstocksBusinessException {
 		byte[] photo = companyService.findPhotoById(companyId);
 		if (photo == null || photo.length <= 0) {
 			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.PHOTO_NOT_FOUND, new Object[] {"company",companyId}), HttpStatus.NOT_FOUND);
 		}
-		
-		String fileExtension = null;
-		try {
-			fileExtension = FileUtils.getFileExtension(photo);
-		} catch (IOException e) {
-			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.FILE_ERROR, null), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
-		StreamingResponseBody res = FileUtils.getStreamingOutput(photo);
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentDisposition(ContentDisposition
-				.parse("inline;filename=" + "company-" + companyId + "-photo." + fileExtension));
-		
-		return ResponseEntity.ok().contentType(FileUtils.getMediaTypeFromImage(fileExtension)).headers(headers).contentLength(photo.length).body(res);
+		return ResponseEntity.ok(photo);
 	}
 	
 	@Override
@@ -160,7 +138,7 @@ public class CompaniesV1Impl implements CompaniesV1 {
 		}
 		
 		companyService.checkCompanyExistence(companyId);
-		reviewService.updateReview(review, companyId);
+		reviewService.upsertReview(review, companyId);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -176,7 +154,6 @@ public class CompaniesV1Impl implements CompaniesV1 {
 		Set<SimpleCompanyDto> companies = companyService.findMostRatedCompanies(limit);
 		for (SimpleCompanyDto company : companies) {
 			company.setDetailsURL(uriBuilder.cloneBuilder().path("/{companyId}").buildAndExpand(company.getId()).toString());
-			company.setPhoto(uriBuilder.cloneBuilder().path("/{companyId}/photo").buildAndExpand(company.getId()).toString());
 		}
 		
 		return ResponseEntity.ok(companies);

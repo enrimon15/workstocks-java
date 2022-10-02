@@ -30,6 +30,7 @@ import it.workstocks.security.UserDetailsImpl;
 import it.workstocks.security.jwt.JWTUtil;
 import it.workstocks.service.AuthService;
 import it.workstocks.utils.ErrorUtils;
+import it.workstocks.utils.FileUtils;
 import it.workstocks.utils.StringUtils;
 import it.workstocks.utils.Translator;
 import it.workstocks.validator.PasswordValidator;
@@ -85,13 +86,16 @@ public class AuthV1Impl implements AuthV1 {
         user.put("name", userDetails.getUser().getName());
         user.put("surname", userDetails.getUser().getSurname());
         user.put("email", userDetails.getUser().getEmail());
+        user.put("jobTitle", userDetails.getUser().getJobTitle());
+        user.put("photo", userDetails.getUser().getAvatar() != null ? FileUtils.getBase64FromByteArray(userDetails.getUser().getAvatar()) : null);
+        user.put("token", token);
         
         return ResponseEntity.ok().header(tokenHeader, tokenPrefix + " " + token).body(user);
 	}
 
 	@Override
-	public ResponseEntity<Void> logout(HttpServletRequest request) {
-		String token = request.getHeader("Authorization").substring(tokenPrefix.length() + 1);
+	public ResponseEntity<Void> logout(String auth) {
+		String token = auth.substring(tokenPrefix.length() + 1);
 		jwtTokenUtil.invalidateToken(token);
 		return ResponseEntity.noContent().build();
 	}

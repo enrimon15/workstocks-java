@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
+import javax.persistence.Transient;
 
 import it.workstocks.entity.BaseEntity;
 import lombok.Getter;

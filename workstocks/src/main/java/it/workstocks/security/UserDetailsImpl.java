@@ -10,7 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import it.workstocks.dto.mapper.EntityMapper;
-import it.workstocks.dto.user.UserDto;
+import it.workstocks.dto.user.applicant.ApplicantDto;
 import it.workstocks.entity.user.User;
 import it.workstocks.entity.user.applicant.Applicant;
 
@@ -22,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
 	private static final SimpleGrantedAuthority ROLE_APPLICANT = new SimpleGrantedAuthority(Roles.APPLICANT);
 	private List<GrantedAuthority> result = new ArrayList<GrantedAuthority>();
 	
-	private UserDto loggedUser;
+	private ApplicantDto loggedUser;
 	
 	private String password;
 	private boolean isAccountExpired;
@@ -34,7 +34,7 @@ public class UserDetailsImpl implements UserDetails {
 		super();
 		
 		if (user instanceof Applicant) {
-			this.loggedUser = mapper.toDto(user);
+			this.loggedUser = mapper.toApplicantDto((Applicant) user);
 			result.add(ROLE_APPLICANT);
 		}
 		
@@ -85,7 +85,7 @@ public class UserDetailsImpl implements UserDetails {
 		return "UserDetailsImpl [username=" + loggedUser.getEmail() + "]";
 	}
 
-	public UserDto getUser() {
+	public ApplicantDto getUser() {
 		return loggedUser;
 	}
 

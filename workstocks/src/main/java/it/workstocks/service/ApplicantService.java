@@ -4,6 +4,7 @@ import java.util.Set;
 
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.dto.search.PaginatedRequest;
+import it.workstocks.dto.user.applicant.ApplicantDto;
 import it.workstocks.dto.user.applicant.BasicApplicant;
 import it.workstocks.dto.user.applicant.SimpleApplicanDto;
 import it.workstocks.dto.user.applicant.cv.CertificationDto;
@@ -15,12 +16,13 @@ import it.workstocks.exception.WorkstocksBusinessException;
 public interface ApplicantService {
 	void checkApplicantExistenceById(Long id) throws WorkstocksBusinessException;
 	BasicApplicant findApplicantById(Long id) throws WorkstocksBusinessException;
-	byte[] findApplicantAvatarById(Long id) throws WorkstocksBusinessException;	
+	ApplicantDto findSimpleApplicantById(Long id) throws WorkstocksBusinessException;	
 	void updateApplicantProfile(BasicApplicant applicantDto, Long applicantId) throws WorkstocksBusinessException;
-	boolean upsertApplicantPhoto(Long applicantId, byte[] photo) throws WorkstocksBusinessException;
+	public void updateApplicantPhoto(Long applicantId, byte[] photo) throws WorkstocksBusinessException;
+	public boolean existEmail(String email);
 	
 	byte[] findApplicantCvById(Long id) throws WorkstocksBusinessException;
-	boolean upsertApplicantCv(byte[] cv) throws WorkstocksBusinessException;
+	void addApplicantCv(byte[] cv) throws WorkstocksBusinessException;
 	
 	Set<QualificationDto> findApplicantQualifications(Long id) throws WorkstocksBusinessException;
 	Set<ExperienceDto> findApplicantExperiences(Long id) throws WorkstocksBusinessException;

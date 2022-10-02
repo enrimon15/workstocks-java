@@ -49,9 +49,9 @@ public class ErrorUtils {
 	public static final String INVALID_NUMBER_MAX = "requestParam.numberMax";
 	public static final String INVALID_NUMBER_MIN = "requestParam.numberMin";
 	public final static String INVALID_REQUEST_PARAM = "error.requestParam";
-	public final static String FILE_ERROR = "error.reviewNotFound";
 	public final static String INVALID_LOGIN_CREDENTIALS = "error.invalidLoginCredentials";
 	public final static String GENERIC_ERROR = "error.generic";
 	public final static String USER_UNAUTHORIZED = "error.forbidden";
 	public final static String TOKEN_FORBIDDEN = "error.jwtInvalid";
+
 }

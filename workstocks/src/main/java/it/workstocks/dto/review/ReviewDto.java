@@ -15,4 +15,5 @@ public class ReviewDto {
 	@Min(1)
 	@Max(5)
 	private Integer rating;
+	private boolean isReviewed;
 }

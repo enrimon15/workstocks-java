@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,10 +21,10 @@ public class QualificationDto {
 	private String name;
 	
 	@NotNull
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private LocalDate startDate;
 	
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private LocalDate endDate;
 	
 	private boolean inProgress;
@@ -33,7 +33,7 @@ public class QualificationDto {
 	@Size(min = 3, max = 40)
 	private String institute;
 	
-	@Size(min = 3, max = 15)
+	@Size(min = 2, max = 15)
 	private String valuation;
 	
 	@Size(min = 3, max =300)

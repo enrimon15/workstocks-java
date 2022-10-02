@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import it.workstocks.dto.AddressDto;
+import it.workstocks.entity.Address;
 import it.workstocks.validator.url.UrlConstraint;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +34,11 @@ public class SimpleCompanyDto {
 	@UrlConstraint
 	private String website;
 	
-	private AddressDto address;
+	private String telephone;
+	
+	private String email;
+	
+	private Address address;
 	
 	private String photo;
 	

@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import it.workstocks.dto.AddressDto;
@@ -31,7 +32,7 @@ public class BasicApplicant {
 
 	private Optional<@Size(min = 2, max = 30) @NotBlank String> jobTitle;
 
-	private Optional<@Size(min = 2, max = 300) @NotBlank String> overview;
+	private Optional<@Size(min = 2, max = 10000) @NotBlank String> overview;
 
 	private Optional<@UrlConstraint String> website;
 
@@ -41,6 +42,7 @@ public class BasicApplicant {
 
 	private Optional<@Valid AddressDto> address;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Optional<LocalDate> dateOfBirth;
 
 	private Optional<Gender> gender;
@@ -54,4 +56,6 @@ public class BasicApplicant {
 	private String experiences;
 	
 	private String photo;
+	
+	private boolean isCv;
 }

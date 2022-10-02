@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,45 +33,43 @@ public interface NewsV1 {
 	
 	@PreAuthorize(PERMIT_ALL)
 	@Tag(name = "NEWS")
-	@Operation(summary = "Get list of filtered and paginated news (NO AUTH)")
+	@Operation(summary = "Get list of filtered and paginated news")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "400", description = "Invalid request parameter", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<PaginatedDtoResponse<NewsDto>> getNewsList(@RequestParam(required = false) String title, @RequestParam Integer page, @RequestParam Integer limit) throws WorkstocksBusinessException;
 	
 	@PreAuthorize(PERMIT_ALL)
 	@Tag(name = "NEWS")
-	@Operation(summary = "Get news by id (NO AUTH)")
+	@Operation(summary = "Get news by id")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "{newsId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<NewsDto> getNewsById(@PathVariable("newsId") String newsId) throws WorkstocksBusinessException;
 	
 	@PreAuthorize(PERMIT_ALL)
 	@Tag(name = "NEWS")
-	@Operation(summary = "Get news photo by id (NO AUTH)")
+	@Operation(summary = "Get news photo by id")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News or photo not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "{newsId}/photo", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-	ResponseEntity<StreamingResponseBody> getNewsPhotoById(@PathVariable("newsId") String newsId) throws WorkstocksBusinessException;
+	ResponseEntity<byte[]> getNewsPhotoById(@PathVariable("newsId") String newsId) throws WorkstocksBusinessException;
 	
 	@PreAuthorize(PERMIT_ALL)
 	@Tag(name = "NEWS")
-	@Operation(summary = "Get list of paginated comments for news (NO AUTH)")
+	@Operation(summary = "Get list of paginated comments for news")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "400", description = "Invalid request parameter", content = @Content),
 		@ApiResponse(responseCode = "404", description = "News or applicant for comment not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "/{newsId}/comments", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<PaginatedDtoResponse<CommentDto>> getNewsComments(@PathVariable("newsId") String newsId, @RequestParam Integer page, @RequestParam Integer limit) throws WorkstocksBusinessException;
@@ -81,10 +78,10 @@ public interface NewsV1 {
 	@Tag(name = "NEWS")
 	@Operation(summary = "Remove user comment for news")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "Operation success", content = @Content),
+		@ApiResponse(responseCode = "204", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News or comment not found", content = @Content),
-		@ApiResponse(responseCode = "403", description = "Access denied to remove comment", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "403", description = "Access denied to remove comment"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@DeleteMapping("/{newsId}/comments/{commentId}") 
 	ResponseEntity<Void> deleteNewsComments(@PathVariable("newsId") String newsId, @PathVariable("commentId") String commentId) throws WorkstocksBusinessException;
@@ -93,10 +90,10 @@ public interface NewsV1 {
 	@Tag(name = "NEWS")
 	@Operation(summary = "Add user comment for news")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "201", description = "Operation success", content = @Content),
+		@ApiResponse(responseCode = "201", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News not found", content = @Content),
-		@ApiResponse(responseCode = "400", description = "Wrong comment payload", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "400", description = "Wrong comment payload"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@PostMapping(path = "/{newsId}/comments", consumes = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> addNewsComment(@PathVariable("newsId") String newsId, @Valid @RequestBody CommentDto comment, Errors errors) throws WorkstocksBusinessException;
@@ -105,10 +102,10 @@ public interface NewsV1 {
 	@Tag(name = "NEWS")
 	@Operation(summary = "Add user like for news")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "201", description = "Operation success", content = @Content),
+		@ApiResponse(responseCode = "201", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News not found", content = @Content),
-		@ApiResponse(responseCode = "409", description = "Like for news is already present", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "409", description = "Like for news is already present"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@PostMapping("/{newsId}/likes") 
 	ResponseEntity<Void> addNewsLike(@PathVariable("newsId") String newsId) throws WorkstocksBusinessException;
@@ -117,9 +114,9 @@ public interface NewsV1 {
 	@Tag(name = "NEWS")
 	@Operation(summary = "Remove user like for news")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "Operation success", content = @Content),
+		@ApiResponse(responseCode = "204", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News or like not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@DeleteMapping("/{newsId}/likes")
 	ResponseEntity<Void> removeNewsLike(@PathVariable("newsId") String newsId) throws WorkstocksBusinessException;
@@ -130,7 +127,7 @@ public interface NewsV1 {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
 		@ApiResponse(responseCode = "404", description = "News not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "/{newsId}/likes", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<CheckResultDto> checkNewsLike(@PathVariable("newsId") String newsId) throws WorkstocksBusinessException;

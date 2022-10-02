@@ -62,5 +62,7 @@ public class JobOfferDto {
 	private AddressDto address;
 	
 	private Set<String> skills;
+	
+	private Integer applicationsSize;
 
 }

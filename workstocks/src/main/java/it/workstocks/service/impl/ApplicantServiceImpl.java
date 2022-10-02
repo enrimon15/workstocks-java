@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import it.workstocks.dto.mapper.EntityMapper;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.dto.search.PaginatedRequest;
+import it.workstocks.dto.user.applicant.ApplicantDto;
 import it.workstocks.dto.user.applicant.BasicApplicant;
 import it.workstocks.dto.user.applicant.SimpleApplicanDto;
 import it.workstocks.dto.user.applicant.cv.CertificationDto;
@@ -31,7 +32,9 @@ import it.workstocks.repository.CertificateRepository;
 import it.workstocks.repository.ExperienceRepository;
 import it.workstocks.repository.QualificationRepository;
 import it.workstocks.repository.SkillRepository;
+import it.workstocks.repository.UserRepository;
 import it.workstocks.repository.custom.IApplicantDao;
+import it.workstocks.security.Roles;
 import it.workstocks.service.ApplicantService;
 import it.workstocks.utils.AuthUtility;
 import it.workstocks.utils.ErrorUtils;
@@ -61,6 +64,9 @@ public class ApplicantServiceImpl implements ApplicantService {
 	
 	@Autowired
 	private Translator translator;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@Autowired
 	private IApplicantDao applicantDao;
@@ -99,12 +105,10 @@ public class ApplicantServiceImpl implements ApplicantService {
 	
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
 	@Override
-	public boolean upsertApplicantPhoto(Long applicantId, byte[] photo) throws WorkstocksBusinessException {
+	public void updateApplicantPhoto(Long applicantId, byte[] photo) throws WorkstocksBusinessException {
 		Applicant applicant = findOptionalApplicant(applicantId);
-		boolean isAdd = applicant.getAvatar() == null || applicant.getAvatar().length <= 0;
 		applicant.setAvatar(photo);
 		applicant = applicantRepository.save(applicant);
-		return isAdd;
 	}
 
 	@Override
@@ -293,12 +297,10 @@ public class ApplicantServiceImpl implements ApplicantService {
 
 	@Override
 	@Transactional(rollbackFor = WorkstocksBusinessException.class)
-	public boolean upsertApplicantCv(byte[] cv) throws WorkstocksBusinessException {
+	public void addApplicantCv(byte[] cv) throws WorkstocksBusinessException {
 		Applicant applicant = findOptionalApplicant(AuthUtility.getCurrentApplicant().getId());
-		boolean isAdd = applicant.getCurricula() == null && applicant.getCurricula().length <= 0;
 		applicant.setCurricula(cv);
 		applicant = applicantRepository.save(applicant);
-		return isAdd;
 	}
 
 	@Override
@@ -368,8 +370,16 @@ public class ApplicantServiceImpl implements ApplicantService {
 	}
 
 	@Override
-	public byte[] findApplicantAvatarById(Long id) throws WorkstocksBusinessException {
-		return findOptionalApplicant(id).getAvatar();
+	public ApplicantDto findSimpleApplicantById(Long id) throws WorkstocksBusinessException {
+		return mapper.toApplicantDto(findOptionalApplicant(id));
+	}
+	
+	@Override
+	public boolean existEmail(String email) {
+		if (AuthUtility.getAuth() != null && AuthUtility.hasRole(Roles.APPLICANT) && email.equals(AuthUtility.getCurrentApplicant().getEmail())) {
+			return false;
+		}
+		return userRepository.existsByEmail(email);
 	}
 
 }

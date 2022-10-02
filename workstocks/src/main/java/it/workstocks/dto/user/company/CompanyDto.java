@@ -1,5 +1,7 @@
 package it.workstocks.dto.user.company;
 
+import java.util.Set;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -8,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import it.workstocks.dto.AddressDto;
+import it.workstocks.dto.job.SimpleJobOfferDto;
 import it.workstocks.entity.pojo.ReviewAverageAndCountPojo;
 import it.workstocks.validator.url.UrlConstraint;
 import lombok.Getter;
@@ -54,9 +57,9 @@ public class CompanyDto {
 	@Size(min = 7, max = 11)
 	private String telephone;
 	
-	private String workingPlaces;
+	private Set<WorkingPlaceDto> workingPlaces;
 	
-	private String jobOffers;
+	private Set<SimpleJobOfferDto> jobOffers;
 	
 	@Valid
 	private AddressDto address;

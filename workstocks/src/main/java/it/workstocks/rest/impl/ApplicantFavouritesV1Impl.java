@@ -1,18 +1,14 @@
 package it.workstocks.rest.impl;
 
 import javax.annotation.PostConstruct;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import it.workstocks.configuration.WorkstocksProperties;
-import it.workstocks.dto.id.JobOfferIdDto;
 import it.workstocks.dto.job.SimpleJobOfferDto;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
 import it.workstocks.dto.utility.CheckResultDto;
@@ -21,8 +17,6 @@ import it.workstocks.rest.ApplicantFavouritesV1;
 import it.workstocks.service.ApplicantService;
 import it.workstocks.service.JobOfferService;
 import it.workstocks.utils.AuthUtility;
-import it.workstocks.utils.ErrorUtils;
-import it.workstocks.utils.Translator;
 import it.workstocks.validator.QueryParamValidator;
 
 @RestController
@@ -39,9 +33,7 @@ public class ApplicantFavouritesV1Impl implements ApplicantFavouritesV1 {
 	
 	@Autowired
 	private QueryParamValidator queryParamValidator;
-	
-	@Autowired
-	private Translator translator;
+
 	
 	private UriComponentsBuilder uriBuilder;
 	
@@ -75,7 +67,6 @@ public class ApplicantFavouritesV1Impl implements ApplicantFavouritesV1 {
 		jobOffer.getElements().stream().forEach(job -> {
 			job.setDetailsURL(uriBuilder.cloneBuilder().path("/{jobOfferId}").buildAndExpand(applicantId, job.getId()).toString());
 			job.getCompany().setDetailsURL(uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}").buildAndExpand(job.getCompany().getId()).toString());
-			job.getCompany().setPhoto(uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}/photo").buildAndExpand(job.getCompany().getId()).toString());
 		});
 
 		return ResponseEntity.ok(jobOffer);
@@ -83,19 +74,12 @@ public class ApplicantFavouritesV1Impl implements ApplicantFavouritesV1 {
 	}
 
 	@Override
-	public ResponseEntity<Void> addApplicantFavouriteJobOffer(Long applicantId, @Valid JobOfferIdDto jobOfferIdDto,
-			Errors errors) throws WorkstocksBusinessException {
-		if (errors.hasErrors()) {
-			throw new WorkstocksBusinessException(
-					translator.toLocale(ErrorUtils.WRONG_PAYLOAD, new String[] {"job id"}), 
-					ErrorUtils.getErrorList(errors),
-					HttpStatus.BAD_REQUEST);
-		}
+	public ResponseEntity<Void> addApplicantFavouriteJobOffer(Long applicantId, Long jobOfferId) throws WorkstocksBusinessException {
 
 		checkForApplicant(applicantId);
 
 		return ResponseEntity.created(uriBuilder.cloneBuilder().path("/{jobOfferId}")
-						.buildAndExpand(applicantId, jobOfferService.addOrRemoveApplicantFavorite(false, applicantId, jobOfferIdDto.getJobOfferId()))
+						.buildAndExpand(applicantId, jobOfferService.addOrRemoveApplicantFavorite(false, applicantId, jobOfferId))
 						.toUri()).build();
 	}
 

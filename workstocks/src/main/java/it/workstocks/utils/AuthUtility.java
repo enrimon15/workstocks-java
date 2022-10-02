@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import it.workstocks.dto.user.UserDto;
+import it.workstocks.dto.user.applicant.ApplicantDto;
 import it.workstocks.entity.user.User;
 import it.workstocks.security.Roles;
 import it.workstocks.security.UserDetailsImpl;
@@ -29,9 +30,13 @@ public class AuthUtility {
 		}
 	}
 	
-	public static UserDto getCurrentApplicant()  {
+	public static ApplicantDto getCurrentApplicant()  {
 		UserDto user = getCurrentUser();
-		return user;
+		if (user instanceof ApplicantDto) {
+			return (ApplicantDto) user;
+		} else {
+			return null;
+		}
 	}
 	
 	public static boolean hasRole(String roleName) {		

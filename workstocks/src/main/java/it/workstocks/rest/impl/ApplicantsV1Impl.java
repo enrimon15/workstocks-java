@@ -1,6 +1,5 @@
 package it.workstocks.rest.impl;
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -31,6 +30,7 @@ import it.workstocks.dto.user.applicant.cv.CurriculumDto;
 import it.workstocks.dto.user.applicant.cv.ExperienceDto;
 import it.workstocks.dto.user.applicant.cv.QualificationDto;
 import it.workstocks.dto.user.applicant.cv.SkillDto;
+import it.workstocks.dto.utility.CheckResultDto;
 import it.workstocks.dto.utility.CountResultDto;
 import it.workstocks.exception.WorkstocksBusinessException;
 import it.workstocks.rest.ApplicantsV1;
@@ -69,7 +69,7 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 	private QueryParamValidator queryParamValidator;
 	
 	@Autowired
-	private Translator translator;
+	private Translator translator; 
 	
 	@Autowired
     private PasswordValidator passwordValidator;
@@ -97,38 +97,23 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 		
 		for (SimpleApplicanDto applicant : applicants.getElements()) {
 			applicant.setDetailsURL(uriBuilder.cloneBuilder().path("/{applicantId}").buildAndExpand(applicant.getId()).toString());
-			applicant.setPhoto(uriBuilder.cloneBuilder().path("/{applicantId}/photo").buildAndExpand(applicant.getId()).toString());
 		}
 		
 		return ResponseEntity.ok(applicants);
 	}
 
 	@Override
-	public ResponseEntity<StreamingResponseBody> getApplicantAvatar(Long applicantId) throws WorkstocksBusinessException {
-		byte[] avatar = applicantService.findApplicantAvatarById(applicantId);
+	public ResponseEntity<byte[]> getApplicantAvatar(Long applicantId) throws WorkstocksBusinessException {
+		byte[] avatar = applicantService.findSimpleApplicantById(applicantId).getAvatar();
 		if (avatar == null || avatar.length <= 0) {
 			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.PHOTO_NOT_FOUND, new Object[] {"applicant",applicantId}), HttpStatus.NOT_FOUND);
 		}
-		
-		String fileExtension = null;
-		try {
-			fileExtension = FileUtils.getFileExtension(avatar);
-		} catch (IOException e) {
-			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.FILE_ERROR, null), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
-		StreamingResponseBody res = FileUtils.getStreamingOutput(avatar);
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentDisposition(ContentDisposition
-				.parse("inline;filename=" + "applicant-" + applicantId + "-photo." + fileExtension));
-		
-		return ResponseEntity.ok().contentType(FileUtils.getMediaTypeFromImage(fileExtension)).headers(headers).contentLength(avatar.length).body(res);
+		return ResponseEntity.ok(avatar);
 
 	}
 	
 	@Override
-	public ResponseEntity<Void> upsertApplicantAvatar(Long applicantId, byte[] photo) throws WorkstocksBusinessException {
+	public ResponseEntity<Void> updateApplicantAvatar(Long applicantId, byte[] photo) throws WorkstocksBusinessException {
 		checkForApplicant(applicantId);
 		if (photo == null) {
 			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.PHOTO_REQUIRED, null), HttpStatus.BAD_REQUEST);
@@ -138,13 +123,8 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.FILE_TOO_LARGE, new String[] {"photo"}), HttpStatus.PAYLOAD_TOO_LARGE);
 		}
 		
-		boolean isAdding = applicantService.upsertApplicantPhoto(applicantId, photo);
-		if (isAdding) {
-			return ResponseEntity.created(uriBuilder.cloneBuilder().path("/{applicantId}/photo").buildAndExpand(applicantId).toUri())
-					.build();
-		} else {
-			return ResponseEntity.noContent().build();
-		}
+		applicantService.updateApplicantPhoto(applicantId, photo);
+		return ResponseEntity.noContent().build();
 	}
 
 	@Override
@@ -159,8 +139,6 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 				uriBuilder.cloneBuilder().path("/{applicantId}/certifications").buildAndExpand(applicantId).toString());
 		applicant.setExperiences(
 				uriBuilder.cloneBuilder().path("/{applicantId}/experiences").buildAndExpand(applicantId).toString());
-		applicant.setPhoto(
-				uriBuilder.cloneBuilder().path("/{applicantId}/photo").buildAndExpand(applicantId).toString());
 		return ResponseEntity.ok(applicant);
 	}
 
@@ -394,24 +372,25 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 	@Override
 	public ResponseEntity<StreamingResponseBody> getApplicantCv(Long applicantId) throws WorkstocksBusinessException {
 
-		byte[] cv = applicantService.findApplicantCvById(applicantId);
-		if (cv == null || cv.length <= 0) {
+		byte[] rawFile = applicantService.findApplicantCvById(applicantId);
+		if (rawFile == null || rawFile.length <= 0) {
 			throw new WorkstocksBusinessException(
 					translator.toLocale(ErrorUtils.CV_NOT_FOUND, new Long[] {applicantId}), HttpStatus.NOT_FOUND);
 		}
 
-		StreamingResponseBody res = FileUtils.getStreamingOutput(cv);
-
+		StreamingResponseBody resource = FileUtils.getStreamingOutput(rawFile);
+		
 		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_PDF);
 		headers.setContentDisposition(ContentDisposition
 				.parse("attachment;filename=" + "CV-applicant-" + applicantId + ".pdf"));
 
-		return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).headers(headers).contentLength(cv.length).body(res);
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).headers(headers).contentLength(rawFile.length).body(resource);
 
 	}
 
 	@Override
-	public ResponseEntity<Void> upsertApplicantCv(Long applicantId, CurriculumDto curriculumDto, Errors errors)
+	public ResponseEntity<Void> addApplicantCv(Long applicantId, CurriculumDto curriculumDto, Errors errors)
 			throws WorkstocksBusinessException {
 		checkForApplicant(applicantId);
 
@@ -422,14 +401,10 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 			throw new WorkstocksBusinessException(translator.toLocale(ErrorUtils.FILE_TOO_LARGE, new String[] {"CV"}), HttpStatus.PAYLOAD_TOO_LARGE);
 		}
 
-		boolean isAdding = applicantService.upsertApplicantCv(cv);
+		applicantService.addApplicantCv(cv);
 
-		if (isAdding) {
-			return ResponseEntity.created(uriBuilder.cloneBuilder().path("/{applicantId}/cv").buildAndExpand(applicantId).toUri())
-					.build();
-		} else {
-			return ResponseEntity.noContent().build();
-		}
+		return ResponseEntity.created(uriBuilder.cloneBuilder().path("/{applicantId}/cv").buildAndExpand(applicantId).toUri())
+				.build();
 
 	}
 
@@ -478,6 +453,11 @@ public class ApplicantsV1Impl implements ApplicantsV1 {
 		
 		authService.updatePassword(passwordDto, applicantId);
 		return ResponseEntity.noContent().build();
+	}
+
+	@Override
+	public ResponseEntity<CheckResultDto> checkUniqueEmail(String email) throws WorkstocksBusinessException {
+		return ResponseEntity.ok(new CheckResultDto(applicantService.existEmail(email)));
 	}
 
 }

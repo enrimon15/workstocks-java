@@ -22,7 +22,9 @@ import it.workstocks.dto.pagination.PaginatedResponse;
 import it.workstocks.entity.blog.Comment;
 import it.workstocks.entity.blog.Like;
 import it.workstocks.entity.blog.News;
+import it.workstocks.entity.user.applicant.Applicant;
 import it.workstocks.exception.WorkstocksBusinessException;
+import it.workstocks.repository.ApplicantRepository;
 import it.workstocks.repository.CommentRepository;
 import it.workstocks.repository.NewsRepository;
 import it.workstocks.service.NewsService;
@@ -41,6 +43,9 @@ public class NewsServiceImpl implements NewsService{
 	
 	@Autowired
 	private CommentRepository commentRepository;
+	
+	@Autowired
+	private ApplicantRepository applicantRepository;
 	
 	@Autowired
 	private Translator translator;
@@ -92,7 +97,7 @@ public class NewsServiceImpl implements NewsService{
 		return commentRepository.countByNewsId(newsId);
 	}
 	
-	/*private void extendComments(Set<CommentDto> comments) throws WorkstocksBusinessException {
+	private void extendComments(Set<CommentDto> comments) throws WorkstocksBusinessException {
 		if (comments != null) {
 			for (CommentDto comment : comments) {
 				Optional<Applicant> user = applicantRepository.findById(comment.getUserId());
@@ -101,7 +106,7 @@ public class NewsServiceImpl implements NewsService{
 				comment.convertBase64UserAvatar(user.get().getAvatar());
 			}
 		}
-	}*/
+	}
 	
 	@Override
 	public byte[] findPhotoById(String id) throws WorkstocksBusinessException {
@@ -126,7 +131,7 @@ public class NewsServiceImpl implements NewsService{
 		Pageable pageable = PageRequest.of(pageNumber - 1, limit, getSortByCreationDate());
 		Page<Comment> commentsPaginated = commentRepository.findByNewsId(newsId, pageable);
 		Set<CommentDto> content = mapper.toDto(new LinkedHashSet<>(commentsPaginated.getContent()));
-		//extendComments(content);
+		extendComments(content);
 		paginatedReponse.setTotalElements(commentsPaginated.getTotalElements());
 		paginatedReponse.setTotalPages(commentsPaginated.getTotalPages());
 		

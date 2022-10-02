@@ -1,7 +1,5 @@
 package it.workstocks.dto.user;
 
-import java.util.Base64;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -25,9 +23,4 @@ public class UserDto {
 	protected String email;
 	
 	private byte[] avatar;
-
-	public String getBase64Avatar() {
-		if (avatar == null) return null;
-		return Base64.getEncoder().encodeToString(this.avatar);
-	}
 }

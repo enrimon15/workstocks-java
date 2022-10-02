@@ -1,13 +1,9 @@
 package it.workstocks.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLConnection;
 import java.util.Base64;
 
-import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 public class FileUtils {
@@ -27,15 +23,8 @@ public class FileUtils {
 	}
 
 	public static String getBase64FromByteArray(byte[] blob) {
+		if (blob.length <= 0) return null;
 		return Base64.getEncoder().encodeToString(blob);
-	}
-	
-	public static String getFileExtension(byte[] file) throws IOException {
-		InputStream is = new ByteArrayInputStream(file);
-		String mimeType = URLConnection.guessContentTypeFromStream(is);
-		String fileExtension = mimeType.split("/")[1];
-		is.close();
-		return fileExtension;
 	}
 	
 	public static StreamingResponseBody getStreamingOutput(byte[] file) {
@@ -45,18 +34,7 @@ public class FileUtils {
 				outputStream.write(file);	
 			}
 		};
-		
+
 		return res;
-	}
-	
-	public static MediaType getMediaTypeFromImage(String fileExtension) {
-		switch (fileExtension) {
-		case "jpeg":
-			return MediaType.IMAGE_JPEG;
-		case "png":
-			return MediaType.IMAGE_PNG;
-		default:
-			return null;
-		}
 	}
 }

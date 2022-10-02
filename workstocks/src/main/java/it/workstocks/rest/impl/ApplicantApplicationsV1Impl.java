@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import it.workstocks.configuration.WorkstocksProperties;
-import it.workstocks.dto.id.JobOfferIdDto;
 import it.workstocks.dto.job.JobOfferDto;
 import it.workstocks.dto.job.SimpleJobOfferDto;
 import it.workstocks.dto.pagination.PaginatedDtoResponse;
@@ -71,26 +69,21 @@ public class ApplicantApplicationsV1Impl implements ApplicantApplicationsV1 {
 	}
 
 	@Override
-	public ResponseEntity<Void> addApplicantApplication(Long applicantId, JobOfferIdDto jobOfferIdDto, Errors errors)
+	public ResponseEntity<Void> addApplicantApplication(Long applicantId, Long jobOfferId)
 			throws WorkstocksBusinessException {
 		
 		checkForApplicant(applicantId);
 
-		if (errors.hasErrors()) {
-			throw new WorkstocksBusinessException(
-					translator.toLocale(ErrorUtils.WRONG_PAYLOAD, new String[] {"job id"}), ErrorUtils.getErrorList(errors),HttpStatus.BAD_REQUEST);
-		}
-
-		JobOfferDto jobOffer = jobOfferService.findById(jobOfferIdDto.getJobOfferId());
+		JobOfferDto jobOffer = jobOfferService.findById(jobOfferId);
 		if (jobOffer.getDueDate().isBefore(LocalDate.now())) {
 			throw new WorkstocksBusinessException(
-					translator.toLocale(ErrorUtils.APPLICATION_EXPIRED, new Long[] {jobOfferIdDto.getJobOfferId()}), HttpStatus.UNPROCESSABLE_ENTITY);
+					translator.toLocale(ErrorUtils.APPLICATION_EXPIRED, new Long[] {jobOfferId}), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 
-		applicationService.applyForApplicant(jobOfferIdDto.getJobOfferId(), applicantId);
+		applicationService.applyForApplicant(jobOfferId, applicantId);
 
 		return ResponseEntity.created(uriBuilder.cloneBuilder().path("/{jobOfferId}")
-				.buildAndExpand(applicantId, jobOfferIdDto.getJobOfferId()).toUri()).build();
+				.buildAndExpand(applicantId, jobOfferId).toUri()).build();
 	}
 
 	@Override
@@ -110,7 +103,6 @@ public class ApplicantApplicationsV1Impl implements ApplicantApplicationsV1 {
 		res.getElements().stream().forEach(job -> {
 			job.setDetailsURL(uriBuilder.cloneBuilder().path("/{jobOfferId}").buildAndExpand(applicantId, job.getId()).toString());
 			job.getCompany().setDetailsURL(uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}").buildAndExpand(job.getCompany().getId()).toString());
-			job.getCompany().setPhoto(uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}/photo").buildAndExpand(job.getCompany().getId()).toString());
 		});
 
 		return ResponseEntity.ok(res);

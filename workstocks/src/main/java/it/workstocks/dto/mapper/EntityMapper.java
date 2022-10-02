@@ -19,6 +19,7 @@ import it.workstocks.dto.job.JobOfferDto;
 import it.workstocks.dto.job.SimpleJobOfferDto;
 import it.workstocks.dto.review.ReviewDto;
 import it.workstocks.dto.user.UserDto;
+import it.workstocks.dto.user.applicant.ApplicantDto;
 import it.workstocks.dto.user.applicant.BasicApplicant;
 import it.workstocks.dto.user.applicant.SimpleApplicanDto;
 import it.workstocks.dto.user.applicant.cv.CertificationDto;
@@ -41,6 +42,7 @@ import it.workstocks.entity.user.applicant.curricula.Certification;
 import it.workstocks.entity.user.applicant.curricula.Experience;
 import it.workstocks.entity.user.applicant.curricula.Qualification;
 import it.workstocks.entity.user.applicant.curricula.Skill;
+import it.workstocks.utils.FileUtils;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntityMapper {
@@ -57,6 +59,9 @@ public interface EntityMapper {
 	 * APPLICANT
 	 */
 	
+	ApplicantDto toApplicantDto(Applicant applicant);
+	
+	@Mapping(target = "photo", source = "avatar")
 	SimpleApplicanDto toSimpleDto(Applicant applicant);
 
 	LinkedHashSet<SimpleApplicanDto> toDtoApplicantCollection(Set<Applicant> applicants);
@@ -72,6 +77,7 @@ public interface EntityMapper {
 	@Mapping(target = "certifications", ignore = true)
 	@Mapping(target = "qualifications", ignore = true)
 	@Mapping(target = "experiences", ignore = true)
+	@Mapping(target = "photo", source = "avatar")
 	BasicApplicant toBasicApplicant(Applicant entity);
 
 	/*
@@ -96,6 +102,8 @@ public interface EntityMapper {
 	 */
 
 	@Mapping(target = "address", source = "workingPlace.address")
+	@Mapping(target = "company.email", source = "company.companyOwner.email")
+	@Mapping(target = "company.photo", source = "company.companyOwner.avatar")
 	JobOfferDto toDto(JobOffer jobOffer);
 
 	JobOffer toEntity(JobOfferDto jobOfferDto);
@@ -109,6 +117,7 @@ public interface EntityMapper {
 	@Mapping(target = "companyForm", ignore = true)
 	@Mapping(target = "employeesNumber", ignore = true)
 	@Mapping(target = "website", ignore = true)
+	@Mapping(target = "photo", source = "companyOwner.avatar")
 	SimpleCompanyDto toDtoForJobOffer(Company company);
 
 	/*
@@ -155,6 +164,7 @@ public interface EntityMapper {
 	 * NEWS
 	 */
 
+	@Mapping(target = "photo", source = "image")
 	NewsDto toDto(News news);
 
 	LinkedHashSet<NewsDto> toDtoNewsCollection(Set<News> newsList);
@@ -170,15 +180,16 @@ public interface EntityMapper {
 	/*
 	 * COMPANY
 	 */
+	@Mapping(target = "photo", source = "companyOwner.avatar")
 	@Mapping(target = "address", source = "mainWorkingPlace.address")
 	SimpleCompanyDto toSimpleDto(Company company);
 	
 	LinkedHashSet<SimpleCompanyDto> toDtoSet(Set<Company> companySet);
 	
-	@Mapping(target = "workingPlaces", ignore = true)
 	@Mapping(target = "jobOffers", ignore = true)
 	@Mapping(target = "email", source = "companyOwner.email")
 	@Mapping(target = "address", source = "mainWorkingPlace.address")
+	@Mapping(target = "photo", source = "companyOwner.avatar")
 	CompanyDto toDto(Company company);
 
 	/*
@@ -199,6 +210,15 @@ public interface EntityMapper {
 	default <T> Optional<T> wrapOptional(T object) {
 		if (object == null) return null;
 	    return Optional.of(object);
+	}
+	
+	/*
+	 * BYTE[] TO BASE64
+	 */
+	
+	default String getBase64(byte[] file) {
+		if (file == null || file.length <= 0) return null;
+		return FileUtils.getBase64FromByteArray(file);
 	}
 
 }

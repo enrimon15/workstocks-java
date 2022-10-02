@@ -18,6 +18,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Transient;
 
 import it.workstocks.entity.Address;
 import it.workstocks.entity.company.Company;
@@ -85,4 +86,11 @@ public class Applicant extends User {
 		if (this.getAvatar() == null) return null;
 		return Base64.getEncoder().encodeToString(this.getAvatar());
 	}
+	
+	////////
+	
+    @Transient
+    public boolean isCv() {
+    	return this.curricula != null && this.curricula.length > 0;
+    }
 }

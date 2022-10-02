@@ -1,5 +1,10 @@
 package it.workstocks.exception.handler;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -9,15 +14,11 @@ import it.workstocks.utils.ErrorUtils;
 import it.workstocks.utils.Translator;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 @Component
 @Slf4j
 public class AuthenticationExceptionHandler implements AuthenticationEntryPoint {
-	
-	@Autowired
+    
+    @Autowired
 	private Translator translator;
 
 	// Questo metodo e' invocato quando un utente tenta di accedere ad un endpoint non pubblico senza credenziali corrette o con un token non esatto

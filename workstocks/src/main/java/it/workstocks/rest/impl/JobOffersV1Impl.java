@@ -55,8 +55,8 @@ public class JobOffersV1Impl implements JobOffersV1 {
 		for (SimpleJobOfferDto job : jobOffers.getElements()) {
 			job.setDetailsURL(uriBuilder.cloneBuilder().path("/{jobOfferId}").buildAndExpand(job.getId()).toString());
 			job.getCompany().setDetailsURL(
-					uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}").buildAndExpand(job.getCompany().getId()).toString());
-			job.getCompany().setPhoto(uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}/photo").buildAndExpand(job.getCompany().getId()).toString());
+					uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}").buildAndExpand(job.getCompany().getId()).toString()
+			);
 		}
 			
 		return ResponseEntity.ok(jobOffers);
@@ -86,9 +86,7 @@ public class JobOffersV1Impl implements JobOffersV1 {
 		job.getCompany().setDetailsURL(
 				uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}").buildAndExpand(job.getCompany().getId()).toString()
 		);
-		job.getCompany().setPhoto(
-				uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}/photo").buildAndExpand(job.getCompany().getId()).toString()
-		);
+		job.setApplicationsSize(applicationService.countApplicationsByJobId(jobOfferId));
 		return ResponseEntity.ok(job);
 	}
 
@@ -103,11 +101,10 @@ public class JobOffersV1Impl implements JobOffersV1 {
 		queryParamValidator.validateInteger("limit", limit, 1, 10);
 		Set<SimpleJobOfferDto> jobs = applicationService.retrieveMostPopularJobOffers(limit);
 		for (SimpleJobOfferDto job : jobs) {
-			job.setDetailsURL(uriBuilder.cloneBuilder().path("/{jobOfferId}").buildAndExpand(job.getId()).toString());
+			job.setDetailsURL(
+					uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/job-offer/{jobOfferId}").buildAndExpand(job.getId()).toString());
 			job.getCompany().setDetailsURL(
 					uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}").buildAndExpand(job.getCompany().getId()).toString());
-			job.getCompany().setPhoto(
-					uriBuilder.fromPath(prop.getSite().getUrl() + "/v1/companies/{companyId}/photo").buildAndExpand(job.getCompany().getId()).toString());
 		}
 		return ResponseEntity.ok(jobs);
 	}

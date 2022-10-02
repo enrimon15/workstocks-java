@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,8 +31,8 @@ public interface JobOffersV1 {
 	@Operation(summary = "Get list of filtered and paginated job offers (NO AUTH)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "400", description = "Invalid request parameter", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "400", description = "Invalid request parameter"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "search", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<PaginatedDtoResponse<SimpleJobOfferDto>> searchJobOffers(@RequestParam(required = false) String description,@RequestParam(required = false) String address, @RequestParam(required = false) String company,
@@ -45,8 +44,8 @@ public interface JobOffersV1 {
 	@Operation(summary = "Get job offers by id (NO AUTH)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "404", description = "Job offer not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "404", description = "Job offer not found"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "{jobOfferId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<JobOfferDto> getJobOfferById(@PathVariable("jobOfferId") Long jobOfferId) throws WorkstocksBusinessException;
@@ -56,7 +55,7 @@ public interface JobOffersV1 {
 	@Operation(summary = "Count total number of job offers (NO AUTH)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@PostMapping(path = "count", produces = MediaType.APPLICATION_JSON_VALUE) 
 	ResponseEntity<CountResultDto> countJobOffers();
@@ -66,8 +65,7 @@ public interface JobOffersV1 {
 	@Operation(summary = "Get most popular job offers based on applications (NO AUTH)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "400", description = "Invalid request parameter", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(path = "popular", produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Set<SimpleJobOfferDto>> getPopularJobOffers(@RequestParam Integer limit) throws WorkstocksBusinessException;

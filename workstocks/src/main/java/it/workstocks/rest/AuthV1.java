@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -43,21 +44,21 @@ public interface AuthV1 {
 	
 	@PreAuthorize(IS_APPLICANT)
 	@Tag(name = "AUTH")
-	@Operation(summary = "User logout")
+	@Operation(summary = "User logout (NO AUTH)")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "User succesfully logout", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "204", description = "User succesfully logout"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@DeleteMapping("logout")
-	public ResponseEntity<Void> logout(HttpServletRequest request);
+	public ResponseEntity<Void> logout(@RequestHeader("Authorization") String auth);
 	
 	@PreAuthorize(PERMIT_ALL)
 	@Tag(name = "AUTH")
 	@Operation(summary = "User sign-up (NO AUTH)")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "User succesfully signup", content = @Content),
-		@ApiResponse(responseCode = "400", description = "Wrong user payload", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "204", description = "User succesfully signup"),
+		@ApiResponse(responseCode = "400", description = "Wrong user payload"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@PostMapping(path = "register", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> registration(@RequestBody @Valid RegistrationRequest registrationRequest, Errors errors, HttpServletRequest request, UriComponentsBuilder uriBuilder) throws WorkstocksBusinessException;
@@ -68,9 +69,9 @@ public interface AuthV1 {
 	@Operation(summary = "Password reset request (NO AUTH)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Operation success"),
-		@ApiResponse(responseCode = "400", description = "Wrong password reset payload", content = @Content),
+		@ApiResponse(responseCode = "400", description = "Wrong password reset payload"),
 		@ApiResponse(responseCode = "404", description = "User not found", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@PostMapping(path = "reset-password-request", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> passwordResetRequest(@RequestBody @Valid PasswordResetRequest resetRequest, Errors errors) throws WorkstocksBusinessException;
@@ -79,11 +80,11 @@ public interface AuthV1 {
 	@Tag(name = "AUTH")
 	@Operation(summary = "Reset password (NO AUTH)")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204", description = "Operation success", content = @Content),
-		@ApiResponse(responseCode = "400", description = "Wrong password payload", content = @Content),
+		@ApiResponse(responseCode = "204", description = "Operation success"),
+		@ApiResponse(responseCode = "400", description = "Wrong password payload"),
 		@ApiResponse(responseCode = "404", description = "Token not found", content = @Content),
-		@ApiResponse(responseCode = "403", description = "Token not valid", content = @Content),
-		@ApiResponse(responseCode = "500", description = "Generic error", content = @Content)
+		@ApiResponse(responseCode = "403", description = "Token not valid"),
+		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@PutMapping(path = "reset-password", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> resetPassword(@RequestBody @Valid PasswordDto passwordDto, Errors errors) throws WorkstocksBusinessException;
