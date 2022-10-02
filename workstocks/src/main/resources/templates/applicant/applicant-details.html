@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/outline}">
+<div layout:fragment="content">
+
+<!-- ======================= Start Banner ===================== -->
+<section class="page-title-banner"  th:style="'background:url('+@{~/img/banner_home.jpeg}+');'">
+	<div class="container">
+		<div class="row m-0 align-items-end detail-swap">
+			<div class="tr-list-wrap">
+				<div class="tr-list-detail">
+					<div class="tr-list-thumb">
+						<img th:src="${user.avatar} ? @{'data:image/jpeg;base64,' + ${user.base64Avatar}} : @{/img/default.png}" class="img-responsive" alt="" />
+					</div>
+					<div class="tr-list-info">
+						<h4 class="mb-1">[[${user?.name + ' ' + user?.surname}]]</h4>
+						<p class="mb-1 text-warning" th:text="${user.jobTitle}">{{$user->profile->job_title ?? null}}</p>
+						<p class="mb-1" th:if="${user?.address?.city != null and user?.address?.country != null and !user.address.city.isBlank and !user.address.country.isBlank}" >
+							
+								<i class="ti-location-pin mr-2"></i>
+							
+							[[${user?.address?.city != null ? user.address.city + ', ' : ''}]] [[${user?.address?.country}]]
+						</p>
+					</div>
+				</div>
+				<div class="listing-detail_right">
+					<div class="listing-detail-item">
+						<a href="#" data-toggle="modal" data-target="#mail" class="btn btn-list full-width color--linkedin"><i class="ti-email mr-2"></i> [[#{up.message}]]</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<!-- ======================= End Banner ===================== -->
+
+<!-- ============== Job Detail ====================== -->
+<section class="tr-single-detail gray-bg">
+	<div class="container">
+		
+			<div th:if="${msgSuccess}"class="alert alert-success alert-dismissible fade show" role="alert">
+				[[#{${msgSuccess}}]]
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			
+			<!-- Error -->
+		    <div th:if="${msgError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+		    	[[#{${msgError}}]]
+		        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		            <span aria-hidden="true">&times;</span>
+		        </button>
+		    </div>
+		
+
+		<div class="row">
+
+			<div class="col-md-8 col-sm-12">
+
+				<!-- Candidate Overview -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-info"></i>[[#{up.overview}]]</h4>
+					</div>
+					<div th:if="${user?.overview != null and !user.overview.isEmpty()}" class="tr-single-body" th:utext="${user?.overview}">
+					</div>
+					<div th:unless="${user?.overview != null and !user.overview.isEmpty()}" class="tr-single-body" th:text="#{up.noDesc}">
+					</div>
+				</div>
+
+				<!-- Extra Skill& Knowledge -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-book"></i> [[#{up.skill}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<!-- Skills -->
+						<div class="row">
+						
+							<th:block th:if="${user?.skills != null and !user.skills.isEmpty()}">
+							
+								<div th:each="skill : ${user.skills}" class="col-lg-6 col-md-6 col-sm-12">
+									<label th:text="${skill.name}">name</label>
+									<div class="progress">
+										<div th:class="'progress-bar progress-bar-striped bg-' + ${skill.skillColor}" role="progressbar" th:style="'width: ' + ${skill.skillLevel} + '%'" th:aria-valuenow="${skill.skillLevel}" aria-valuemin="0" aria-valuemax="100"></div>
+									</div>
+								</div>
+							</th:block>
+							<th:block th:unless="${user?.skills != null and !user.skills.isEmpty()}">
+								<p class="ml-4" th:text="#{up.noSkill}">noSkill</p>
+							</th:block>
+
+						</div>
+
+					</div>
+				</div>
+
+
+				<!-- Education & Qualification -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-cup"></i>[[#{up.education}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul class="qa-skill-list" th:style="${user.qualifications.size <= 0 ? 'border-left: none!important' : ''}">
+
+							<th:block th:if="${user?.qualifications != null and !user.qualifications.isEmpty()}">
+								<!-- Single List -->
+								<li th:each="qualification : ${user.qualifications}">
+									<div class="qa-skill-box">
+										<h4 class="qa-skill-title">[[${qualification.name}]]<span class="qa-time">[[${qualification.startDate}]] -  [[${qualification.endDate != null ? qualification.endDate : #messages.msgOrNull('ocv.inProgress')}]]</span></h4>
+										<h5 class="qa-subtitle">[[${qualification.institute}]]</h5>
+										
+											<div th:if="${qualification.description != null AND !''.equals(qualification.description)}" class="qa-content">
+												<p>[[${qualification.description}]]</p>
+											</div>
+										
+
+											<div th:if="${qualification.valuation != null AND qualification.valuation.trim().length > 0}" class="qa-content">
+												<p>[[#{up.valuation}]] [[${qualification.valuation}]]</p>
+											</div>
+									</div>
+								</li>
+							</th:block>
+							<th:block th:unless="${user?.qualifications != null and !user.qualifications.isEmpty()}">
+								<p th:text="#{up.noEducation}">noEducation</p>
+							</th:block>
+
+						</ul>
+					</div>
+				</div>
+
+				<!-- Experience -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="lni lni-briefcase"></i>[[#{up.experience}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul class="qa-skill-list" th:style="${user?.experiences != null and user?.experiences.size() le 0 ? 'border-left: none!important' : ''}">
+
+						<th:block th:if="${user?.experiences != null and !user.experiences.isEmpty()}">
+							<!-- Single List -->
+							<li th:each="experience : ${user.experiences}">
+								<div class="qa-skill-box">
+									<h4 class="qa-skill-title">[[${experience.jobPosition}]]<span class="qa-time">[[${experience.startDate} + ' - ' + ${experience.endDate != null ? experience.endDate : #messages.msgOrNull('ocv.inProgress')}]]</span></h4>
+									<h5 class="qa-subtitle" th:text="${experience.company}">company</h5>
+									
+										<div th:if="${experience.description != null and !''.equals(experience.description)}" class="qa-content">
+											<p>[[${experience.description}]]</p>
+										</div>
+									
+								</div>
+							</li>
+						</th:block>
+						<th:block th:unless="${user?.experiences != null and !user.experiences.isEmpty()}">
+							<p th:text="#{up.noExperience}">noExperience</p>
+						</th:block>
+
+						</ul>
+					</div>
+				</div>
+
+				<!-- Certificate -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="lni-certificate"></i>[[#{up.certificate}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul class="qa-skill-list" th:style="${user?.certifications != null and user?.certifications.size() le 0 ? 'border-left: none!important' : ''}">
+
+							<th:block th:if="${user?.certifications != null and !user.certifications.isEmpty()}">
+								<!-- Single List -->
+									<li th:each="certificate : ${user.certifications}">
+										<div class="qa-skill-box">
+											<h4 class="qa-skill-title">[[${certificate.name}]]<span class="qa-time">[[${certificate.date} + ' - ' + ${certificate.endDate != null ? certificate.endDate : #messages.msgOrNull('up.noExp')} ]]</span></h4>
+											<h5 class="qa-subtitle">[[#{up.society} + ' ' + ${certificate.society}]]</h5>
+											<div class="qa-content">
+												<p>[[#{up.credential}]] <a th:href="${certificate.url != null ? certificate.url : '#'}">[[${certificate.credential}]]</a></p>
+											</div>
+										</div>
+									</li>
+							</th:block>
+							<th:block th:unless="${user?.certifications != null and !user.certifications.isEmpty()}">
+								<p th:text="#{up.noCertificate}">message</p>
+							</th:block>
+
+						</ul>
+					</div>
+				</div>
+
+
+			</div>
+
+			<!-- Sidebar Start -->
+			<div class="col-md-4 col-sm-12">
+
+				<div class="offer-btn-wrap mb-4">
+					
+						<a data-toggle="tooltip" data-placement="top" th:title="#{ocv.cvNotAvailable}" th:if="${user.curricula == null}" href="#" style="cursor: not-allowed" class="btn btn-info btn-md full-width"><i class="mr-2 ti-download"></i>[[#{up.cv}]]</a>
+					
+						<a th:if="${user.curricula != null}" th:href="@{/public/download-cv(userId=${user.id})}" class="btn btn-info btn-md full-width"><i class="mr-2 ti-download"></i>[[#{up.cv}]]</a>
+					
+				</div>
+
+				<!-- Candidate Detail -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-direction"></i> [[#{up.detail}]]</h4>
+					</div>
+
+
+					<div class="tr-single-body">
+						<ul class="extra-service">
+
+							
+							<li th:if="${user.minimumExpectedSalary != null}">
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="ti-money"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{up.salary}">salary</strong>
+										[[${user.minimumExpectedSalary} + ' K']]
+									</div>
+								</div>
+							</li>
+							
+
+							
+							<li th:if="${user.gender != null}">
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="lni-users"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{up.gender}">gender</strong>
+										[[${user.gender != null ? user.gender.name().charAt(0) : null}]]
+									</div>
+								</div>
+							</li>
+							
+
+						</ul>
+					</div>
+
+				</div>
+
+				<!-- Candidate Address -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-direction"></i> [[#{up.address}]]</h4>
+					</div>
+
+					<div class="tr-single-body">
+						<ul class="extra-service">
+							
+							<li th:if="${user?.address?.country != null and user?.address?.city != null}">
+								<div class="icon-box-icon-block">
+									<a th:href="'https://www.google.com/maps/search/?api=1&amp;query=' + ${user.address.city.replace('\\s','%20')} + '%20' + ${user.address.country.replace('\\s','%20')}">
+										<div class="icon-box-round">
+											<i class="lni-map-marker"></i>
+										</div>
+										<div class="icon-box-text">
+											[[${user?.address?.city != null ? user.address.city  + ', ': ''} + ${user?.address?.country}]]
+										</div>
+									</a>
+								</div>
+							</li>
+							
+
+							
+							<li th:if="${user.phoneNumber}">
+								<div class="icon-box-icon-block">
+									<a th:href="'tel:' + ${user.phoneNumber}">
+										<div class="icon-box-round">
+											<i class="lni-phone-handset"></i>
+										</div>
+										<div class="icon-box-text" th:text="${user.phoneNumber}">
+											telephone
+										</div>
+									</a>
+								</div>
+							</li>
+							
+
+							<li>
+								<div class="icon-box-icon-block">
+									<a th:href="'mailto:' + ${user.email}">
+										<div class="icon-box-round">
+											<i class="lni-envelope"></i>
+										</div>
+										<div class="icon-box-text" th:text="${user.email}">
+											email
+										</div>
+									</a>
+								</div>
+							</li>
+
+							
+							<li th:if="${user.website != null and !''.equals(user.website)}">
+								<div class="icon-box-icon-block">
+									<a th:href="${user.website}">
+										<div class="icon-box-round">
+											<i class="lni-world"></i>
+										</div>
+										<div class="icon-box-text" th:text="${user.website}">
+											website
+										</div>
+									</a>
+								</div>
+							</li>
+						</ul>
+					</div>
+
+				</div>
+
+			</div>
+			<!-- /col-md-4 -->
+		</div>
+	</div>
+</section>
+<!-- ============== Job Detail ====================== -->
+
+<!-- Modal -->
+<div class="modal fade" id="mail" tabindex="-1" role="dialog" aria-labelledby="mail" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel" th:text="#{up.message}">message</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="form-contact" method="POST" th:action="@{/common/send-mail(recipient=${user.id})}">
+					<div class="row">
+						<div class="form-group col-md-12 col-sm-12">
+							<textarea class="form-control" th:placeholder="#{up.mail}" name="sourceTextMessage"></textarea>
+						</div>
+
+						<div class="col-md-12 col-sm-12">
+								<button sec:authorize="isAnonymous()" disabled class="btn btn-primary" type="button" th:text="#{up.submit}">submit</button>
+								<button sec:authorize="isAuthenticated()" id="spinner" th:onclick="handleMail()" class="btn btn-primary" type="submit" th:text="#{up.submit}">submit</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<script>
+	function htmlToElement(html) {
+		let template = document.createElement('template');
+		html = html.trim(); // Never return a text node of whitespace as the result
+		template.innerHTML = html;
+		return template.content.firstChild;
+	}
+
+	function handleMail() {
+		const $button = document.getElementById('spinner');
+
+		const spinner = htmlToElement('<div class="spinner-border text-success" role="status"><span class="sr-only">Loading...</span></div>');
+		$button.replaceWith(spinner);
+
+		document.getElementById('form-contact').submit();
+	}
+</script>
+
+<script>
+    window.addEventListener('load', function () {
+        // tooltip
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    });
+</script>
+
+</div>

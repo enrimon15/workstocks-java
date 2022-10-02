@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layouts/outline}">
+<div layout:fragment="content">
+<section class="tr-single-detail gray-bg">
+	<div class="container">
+		<div class="row">
+
+			<!-- Sidebar Start -->
+			<div class="col-md-4 col-sm-12">
+				<div class="dashboard-wrap">
+
+					<div class="dashboard-thumb">
+						<div class="dashboard-th-pic">
+							<img 
+								th:src="${#authentication.principal.user.avatar} ? @{'data:image/jpeg;base64,' + ${#authentication.principal.user.base64Avatar}} : @{/img/default.png}" 
+								class="img-fluid mx-auto img-circle" 
+								alt="" 
+							/>
+						</div>
+						<h4 class="mb-1" th:text="${#authentication.principal.user.name} + ' ' + ${#authentication.principal.user.surname}"></h4>
+						<span class="text-success" th:text="${#authentication.principal.user.jobTitle}">job title</span>
+					</div>
+
+					<!-- Nav tabs -->
+					<ul class="nav dashboard-verticle-nav"> <!--nav-pills-->
+						<li class="nav-item">
+							<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/applicant/profile' ? 'active':''}" th:href="@{/applicant/profile}"><i class="ti-user"></i>[[#{user.menu.profile}]]</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/common/change-password' ? 'active':''}" th:href="@{/common/change-password}"><i class="lni-lock"></i>[[#{user.menu.changePass}]]</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().contains('/applicant/online-cv') ? 'active':''}" th:href="@{/applicant/online-cv}"><i class="ti-file"></i>[[#{user.menu.onlineCV}]]</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/applicant/favorites' ? 'active':''}" th:href="@{/applicant/favorites}"><i class="lni-heart-filled"></i>[[#{user.menu.favorites}]]</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/applicant/applied-jobs' ? 'active':''}" th:href="@{/applicant/applied-jobs}"><i class="lni-briefcase"></i>[[#{user.menu.appliedJobs}]]</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/public/show-profile' ? 'active':''}" th:href="@{/public/applicant?id=}+${#authentication.principal.user.id}"><i class="lni-user"></i>[[#{user.menu.showProfile}]]</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/logout}">
+								<i class="lni-exit"></i> [[#{user.menu.logout}]]
+							</a>
+						</li>
+					</ul>
+
+				</div>
+			</div>
+			<!-- /col-md-4 -->
+
+			<div class="col-md-8 col-sm-12">
+				<!-- Tab panes -->
+				<div class="tab-content">
+
+					<!-- yields here the main content page -->
+					
+					<div th:if="${#httpServletRequest.getRequestURI() == '/applicant/profile'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{applicant/dashboard/profile :: div}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/common/change-password'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{dashboard-common/change-password :: div}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/applicant/online-cv'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{applicant/dashboard/online-cv :: div}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI().contains('/applicant/online-cv/edit')}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="${'qualification'.equals(param.operationType[0])} ? ~{applicant/dashboard/edit-cv :: qualification} : _"></div>
+						<div th:replace="${'experience'.equals(param.operationType[0])} ? ~{applicant/dashboard/edit-cv :: experience} : _"></div>
+						<div th:replace="${'certificate'.equals(param.operationType[0])} ? ~{applicant/dashboard/edit-cv :: certificate} : _"></div>
+						<div th:replace="${'skill'.equals(param.operationType[0])} ? ~{applicant/dashboard/edit-cv :: skill} : _"></div>
+					</div>
+					
+					<div th:if="${#httpServletRequest.getRequestURI() == '/applicant/favorites'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{applicant/dashboard/favorite :: content}"></div>
+					</div>
+					
+					<div th:if="${#httpServletRequest.getRequestURI() == '/applicant/applied-jobs'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{applicant/dashboard/applied-jobs :: content}"></div>
+					</div>
+					
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+</section>
+<!-- ============== Candidate Dashboard ====================== -->
+
+
+<script>
+    $(document).ready(function() {
+        $('#level-skill-select').select2({
+            minimumResultsForSearch: -1
+        });
+        
+        $('.toggle-password').click(function() {
+        
+        let owner = this;
+	
+		  $(owner).toggleClass('fa-eye fa-eye');
+		  var input = $($(owner).attr('toggle'));
+		  if (input.attr('type') == 'password') {
+		    input.attr('type', 'text');
+		    $(owner).toggleClass('fa-eye-slash fa-eye');
+		  } else {
+		    input.attr('type', 'password');
+		    $(owner).toggleClass('fa-eye fa-eye-slash');
+		  }
+		});
+    });
+</script>
+
+<script th:src="@{~/js/dashboard-in-progress.js}"></script>
+</div>
+

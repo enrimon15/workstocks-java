@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/outline}">
+      
+<div layout:fragment="content">
+
+	<style>
+		@media screen and (max-width: 768px) {
+			#showMore {
+				text-align: start!important;
+				margin-top: 10px!important;
+			}
+		}
+
+		@media screen and (min-width: 769px) {
+			#showMore {
+				text-align: end!important;
+				margin-top: 0px!important;
+			}
+		}
+		
+		.badge {
+		    font-size: 25px;
+		    font-weight: 200
+		}
+		
+		.badge i {
+		    font-size: 20px;
+		    font-weight: 200
+		}
+	</style>
+
+<!-- ======================= Start Banner ===================== -->
+<section class="page-title-banner" th:style="'background:url('+@{~/img/companies-banner.jpeg}+');'">
+	<div class="container">
+		<div class="row m-0 align-items-end detail-swap">
+			<div class="tr-list-wrap">
+				<div class="tr-list-detail">
+					<div class="tr-list-thumb">
+						<img th:src="${user.avatar} ? @{'data:image/jpeg;base64,' + ${user.base64Avatar}} : @{/img/default.png}" class="img-responsive" alt="" />
+					</div>
+					<div class="tr-list-info">
+						<h4 class="mb-1" th:text="${user?.company?.name}">name</h4>
+						<p class="mb-1 text-warning" th:text="${user?.company?.slogan != null ? user?.company?.slogan : null}">slogan</p>
+						<p class="mb-1"><i class="ti-location-pin mr-2"></i>[[${user.company.mainWorkingPlace?.address?.city} + ', ' + ${user.company.mainWorkingPlace?.address?.country}]]</p>
+					</div>
+				</div>
+				<div class="listing-detail_right">
+					<div class="listing-detail-item">
+						<span sec:authorize="isAnonymous()"> <a style="cursor: not-allowed" href="javascript:void(0)" class="btn btn-list full-width mb-2 color--googleplus" id="job-alert-butt"><i class="ti-support mr-2"></i> [[#{cp.jobAlert}]]</a><br> </span>
+						<span sec:authorize="hasRole('APPLICANT')" th:if="${isJobAlert == true}"> <a href="javascript:void(0)" class="btn btn-list full-width mb-2 color--googleplus" id="job-alert-butt" th:onclick="jobAlert('/applicant/job-alert?companyId=' + [[${user.company.id}]] + '&opType=remove')"><i id="job-alert-icon" class="ti-briefcase mr-2"></i> [[#{cp.jobAlertRemove}]]</a><br> </span>
+						<span sec:authorize="hasRole('APPLICANT')" th:unless="${isJobAlert == true}"> <a sec:authorize="hasRole('APPLICANT')" data-toggle="tooltip" th:unless="${isJobAlert == true}" href="javascript:void(0)" class="btn btn-list full-width mb-2 color--googleplus" id="job-alert-butt" th:onclick="jobAlert('/applicant/job-alert?companyId=' + [[${user.company.id}]] + '&opType=add')"><i id="job-alert-icon" class="ti-support mr-2"></i> [[#{cp.jobAlert}]]</a><br> </span>
+						<a href="#" data-toggle="modal" data-target="#review" class="btn btn-list full-width mb-2 color--success"><i class="ti-star mr-2"></i> [[#{cp.reviewClick}]]</a><br>
+						<a href="#" data-toggle="modal" data-target="#mail" class="btn btn-list full-width color--linkedin"><i class="ti-email mr-2"></i> [[#{cp.message}]]</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<!-- ======================= End Banner ===================== -->
+
+<!-- ============== Job Detail ====================== -->
+<section class="tr-single-detail gray-bg">
+	<div class="container">
+
+			<div th:if="${msgSuccess}"class="alert alert-success alert-dismissible fade show" role="alert">
+				[[#{${msgSuccess}}]]
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			
+			<!-- Error -->
+		    <div th:if="${msgError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+		    	[[#{${msgError}}]]
+		        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		            <span aria-hidden="true">&times;</span>
+		        </button>
+		    </div>
+
+		<div class="row">
+
+			<div class="col-md-8 col-sm-12">
+			
+				<!-- Job Review -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-star"></i> [[#{cp.reviewDisplay}]]</h4>
+					</div>
+					<div class="container">
+				        <div class="row" th:if="${user?.company?.ratingStats?.ratingAverage}">
+				            <div class="col-md-4 border-right">
+				                <div class="ratings text-center p-4 py-5"> <span class="badge bg-success">[[${user.company.ratingStats.ratingAverage}]] <i class="fa fa-star-o"></i></span> <span class="d-block total-ratings" th:text="${user.company.ratingStats.reviewNumber} + ' ' + #{cp.reviewDisplay}">review number</span> </div>
+				            </div>
+				            <div class="col-md-8 my-auto pr-5">
+				                <div class="rating-progress-bars">
+				                    <div class="progress-1 align-items-center">
+				                        <div class="progress">
+				                            <div class="progress-bar bg-success" role="progressbar" th:style="'width: ' + ${user.company.ratingStats.ratingAverage * 20} + '%;'" aria-valuemax="100"> </div>
+				                        </div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				    </div>
+			        <div class="row" th:unless="${user?.company?.ratingStats?.ratingAverage}">
+			            <div class="col-12 border-right">
+			                <div class="tr-single-body" th:text="#{cp.noReview}">review number</div>
+			            </div>
+			        </div>
+				</div>
+
+				<!-- Job Overview -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-info"></i>[[#{cp.overview}]]</h4>
+					</div>
+					<div class="tr-single-body" th:utext="${user?.company?.overview} ?: #{cp.noDesc}">
+						
+					</div>
+				</div>
+
+				<!-- Job Qualifications -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-map-alt"></i>[[#{cp.workingPlaces}]]</h4>
+					</div>
+					<div class="tr-single-body">
+						<ul class="jb-detail-list">
+								<th:block th:each="workingPlace : ${user.company.workingPlaces}">
+									<li>
+										[[${workingPlace?.address?.street} + ', ' + ${workingPlace?.address?.city} + ' (' + ${workingPlace?.address?.country} + ') - ']]
+										<strong th:text="#{'cp.'+ ${workingPlace.workingPlaceType}}"></strong>
+									</li>
+								</th:block>
+						</ul>
+					</div>
+				</div>
+
+
+				<!-- Job Latest -->
+				<div class="tr-single-box">
+					<div class="tr-single-header row">
+						<div class="col-sm-12 col-lg col-md">
+							<h4><i class="ti-cup"></i>[[#{cp.openPosition}]]</h4>
+						</div>
+						<div id="showMore" class="col-sm-12 col-lg col-md" style="text-align: end">
+							<a th:if="${latestJobs?.size gt 0}" th:href="@{/public/job-offers(company=${user.company.name})}" th:text="#{cp.showMore}">
+								
+							</a>
+						</div>
+
+					</div>
+					<div class="tr-single-body">
+						<div  class="owl-carousel" id="rl-list">
+
+							
+							<th:block th:if="${latestJobs?.size gt 0}" th:each="job : ${latestJobs}">
+								<!-- Single Job -->
+								<div class="item">
+									<div class="job-grid style-1">
+										<div class="job-grid-wrap">
+											<span class="job-type j-part-time">[[${job.contractType}]]</span>
+											<div class="job-grid-thumb">
+												<a style="cursor: auto" href="#"><img th:src="${user.avatar} ? @{'data:image/jpeg;base64,' + ${user.base64Avatar}} : @{/img/default.png}" class="img-fluid mx-auto" alt="" /></a>
+											</div>
+											<h4 class="job-title"><a th:href="@{/public/job-offer(id=${job.id})}">[[${job.title}]]</a></h4>
+											<hr>
+											<div class="job-grid-detail">
+												<h4 class="jbc-name"><a style="cursor: auto" href="#">[[${job.company.name}]]</a></h4>
+												<p><i class="ti-location-pin"></i>[[${job.workingPlace.address.street + ', ' + job.workingPlace.address.city + ' (' + job.workingPlace.address.country + ')'}]] </p>
+											</div>
+											<div class="job-grid-footer">
+												<h4 class="job-price">[[#{cp.upTo} + ${' ' + job.maxSalary + 'k'}]]</h4>
+												<a th:href="@{/public/job-offer(id=${job.id})}" class="btn btn-outline-info btn-rounded">[[#{cp.apply}]]</a>
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</th:block>
+									
+							<th:block th:unless="${latestJobs?.size gt 0}">
+								<p th:text="#{cp.noJobs}">noJobs</p>
+							</th:block>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+
+			<!-- Sidebar Start -->
+			<div class="col-md-4 col-sm-12">
+
+				<!-- Company Overview -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-direction"></i> [[#{cp.description}]]</h4>
+					</div>
+
+					<div class="tr-single-body">
+						<ul class="extra-service">
+							<li>
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="lni-users"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{cp.employee}">employee</strong>
+										[[${user.company.employeesNumber}]]
+									</div>
+								</div>
+							</li>
+
+							<li>
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="lni-text-format"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{cp.vatNumber}">vatNumber</strong>
+										[[${user.company.vatNumber}]]
+									</div>
+								</div>
+							</li>
+
+							<li>
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="ti-home"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{cp.form}">company form</strong>
+										[[${user.company.companyForm}]]
+									</div>
+								</div>
+							</li>
+
+							<li>
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="lni-certificate"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{cp.year}">foundation year</strong>
+										[[${user.company.foundationYear}]]
+									</div>
+								</div>
+							</li>
+
+							<li th:if="${user.company.slogan}">
+								<div class="icon-box-icon-block">
+									<div class="icon-box-round">
+										<i class="lni-pencil"></i>
+									</div>
+									<div class="icon-box-text">
+										<strong class="d-block" th:text="#{cp.slogan}">slogan</strong>
+										[[${user.company.slogan}]]
+									</div>
+								</div>
+							</li>
+
+						</ul>
+					</div>
+
+				</div>
+
+				<!-- Company Address -->
+				<div class="tr-single-box">
+					<div class="tr-single-header">
+						<h4><i class="ti-direction"></i> [[#{cp.addressTitle}]]</h4>
+					</div>
+
+					<div class="tr-single-body">
+						<ul class="extra-service">
+							<li>
+								<div class="icon-box-icon-block">
+								<a th:href="'https://www.google.com/maps/search/?api=1&amp;query=' 
+									+ ${user.company.mainWorkingPlace.address.street.replace('\\s','%20')} + '%20'
+									+ ${user.company.mainWorkingPlace.address.city.replace('\\s','%20')} + '%20' 
+									+ ${user.company.mainWorkingPlace.address.country.replace('\\s','%20')}">
+								
+										<div class="icon-box-round">
+											<i class="lni-map-marker"></i>
+										</div>
+										<div class="icon-box-text">
+											[[${user.company.mainWorkingPlace.address.street} + ', ' + ${user.company.mainWorkingPlace.address.city} + ' (' + ${user.company.mainWorkingPlace.address.country} + ')']]
+										</div>
+									</a>
+								</div>
+							</li>
+
+							<li th:if="${user.company.telephone}">
+								<div class="icon-box-icon-block">
+									<a th:href="'tel:' + ${user.company.telephone}">
+										<div class="icon-box-round">
+											<i class="lni-phone-handset"></i>
+										</div>
+										<div class="icon-box-text">
+											[[${user.company.telephone}]]
+										</div>
+									</a>
+								</div>
+							</li>
+
+							<li>
+								<div class="icon-box-icon-block">
+									<a th:href="'mailto:' + ${user.email}">
+										<div class="icon-box-round">
+											<i class="lni-envelope"></i>
+										</div>
+										<div class="icon-box-text">
+											[[${user.email}]]
+										</div>
+									</a>
+								</div>
+							</li>
+
+							<li th:if="${user.company.website}">
+								<div class="icon-box-icon-block">
+									<a th:href="${user.company.website}">
+										<div class="icon-box-round">
+											<i class="lni-world"></i>
+										</div>
+										<div class="icon-box-text">
+											[[${user.company.website}]]
+										</div>
+									</a>
+								</div>
+							</li>
+
+						</ul>
+					</div>
+
+				</div>
+
+			</div>
+			<!-- /col-md-4 -->
+		</div>
+	</div>
+</section>
+<!-- ============== Job Detail ====================== -->
+
+	<!-- Modal -->
+	<div class="modal fade" id="mail" tabindex="-1" role="dialog" aria-labelledby="mail" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel" th:text="#{up.message}">message</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="form-contact" method="POST" th:action="@{/common/send-mail(recipient=${user.id})}">
+						<div class="row">
+							<div class="form-group col-md-12 col-sm-12">
+								<textarea name="sourceTextMessage" class="form-control" th:placeholder="#{up.mail}"></textarea>
+							</div>
+
+							<div class="col-md-12 col-sm-12">
+								<button sec:authorize="isAnonymous()" disabled class="btn btn-primary" type="button" th:text="#{up.submit}">submit</button>
+								<button sec:authorize="isAuthenticated()" id="spinner" th:onclick="handleMail()" class="btn btn-primary" type="submit" th:text="#{up.submit}">submit</button>
+							</div>
+						</div>
+					</form>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	
+	<!-- Modal -->
+	<div class="modal fade" id="review" tabindex="-1" role="dialog" aria-labelledby="mail" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel" th:text="#{cp.reviewClick}">message</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="form-review" method="POST" th:action="@{/applicant/review}" th:object="${review}">
+						
+						<input th:if="${review.id != null}" type="hidden" name="companyId" th:value="${review.id.companyId}" th:field="*{id.companyId}">
+						<input th:if="${review.id != null}" type="hidden" name="applicantId" th:value="${review.id.companyId}" th:field="*{id.applicantId}">
+						
+						<div class="row">
+							
+						<div class="container col-mx-auto p-3 mb-5 mt-2">
+						
+						<div class="container d-flex align-items-center justify-content-center">
+    					<div class="row justify-content-center"> 
+							
+						  	<!-- star rating -->
+					      	<div class="rating-wrapper">
+					        
+						        <!-- star 5 -->
+						        <input type="radio" id="5-star-rating" name="star-rating" value="5" th:field="*{rating}">
+						        <label for="5-star-rating" class="star-rating">
+						          <i class="lni lni-star d-inline-block"></i>
+						        </label>
+						        
+						         <!-- star 4 -->
+						        <input type="radio" id="4-star-rating" name="star-rating" value="4" th:field="*{rating}">
+						        <label for="4-star-rating" class="star-rating star">
+						          <i class="lni lni-star d-inline-block"></i>
+						        </label>
+						        
+						         <!-- star 3 -->
+						        <input type="radio" id="3-star-rating" name="star-rating" value="3" th:field="*{rating}">
+						        <label for="3-star-rating" class="star-rating star">
+						          <i class="lni lni-star d-inline-block"></i>
+						        </label>
+						        
+						        <!-- star 2 -->
+						        <input type="radio" id="2-star-rating" name="star-rating" value="2" th:field="*{rating}">
+						        <label for="2-star-rating" class="star-rating star">
+						          <i class="lni lni-star d-inline-block"></i>
+						        </label>
+						        
+						        <!-- star 1 -->
+						        <input type="radio" id="1-star-rating" name="star-rating" value="1" th:field="*{rating}">
+						        <label for="1-star-rating" class="star-rating star">
+						          <i class="lni lni-star d-inline-block"></i>
+						        </label>
+					        
+					        </div>
+					        
+					        </div>
+					        </div>
+					        
+					        </div>
+
+							<div class="col-md-12 col-sm-12">
+								<button sec:authorize="!hasRole('APPLICANT')" disabled class="btn btn-primary" type="button" th:text="#{up.submit}">submit</button>
+								<button sec:authorize="hasRole('APPLICANT')" id="spinnerReview" th:onclick="handleReview()" class="btn btn-primary" type="submit" th:text="#{up.submit}">submit</button>
+							</div>
+						</div>
+					</form>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function htmlToElement(html) {
+			var template = document.createElement('template');
+			html = html.trim(); // Never return a text node of whitespace as the result
+			template.innerHTML = html;
+			return template.content.firstChild;
+		}
+
+		function handleMail() {
+			$button = document.getElementById('spinner');
+
+			const spinner = htmlToElement('<div class="spinner-border text-success" role="status"><span class="sr-only">Loading...</span></div>');
+			$button.replaceWith(spinner);
+
+			document.getElementById('form-contact').submit()
+		}
+		
+		function handleReview() {
+			$button = document.getElementById('spinnerReview');
+
+			const spinner = htmlToElement('<div class="spinner-border text-success" role="status"><span class="sr-only">Loading...</span></div>');
+			$button.replaceWith(spinner);
+
+			document.getElementById('form-review').submit()
+		}
+	</script>
+    
+    <script>
+		function jobAlert(url) {
+			console.log(url);
+			$.ajax({
+				type: "GET",
+				url: url,
+				success: function (result) {
+					const icon = (result.opType == 'add') ? '<i class="ti-briefcase  mr-2"></i>' : '<i class="ti-support mr-2"></i>';
+					let newUrl = url.replace('&opType=' + result.opType, '&opType=' + ((result.opType == 'add') ? 'remove' : 'add'));
+					let text = (result.opType == 'add') ? "[[#{cp.jobAlertRemove}]]" : "[[#{cp.jobAlert}]]";
+					document.getElementById('job-alert-butt').setAttribute( "onClick", `jobAlert('${newUrl}')` );
+					document.getElementById('job-alert-butt').innerHTML = icon + ' ' + text;
+				},
+				error: function (result) {
+					console.log(result);
+				}
+			});
+		}
+	</script>
+
+
+		<!-- <script src="assets/js/counterup.min.js"></script>
+		<script src="assets/js/custom.js"></script> -->
+		<!-- ============================================================== -->
+		<!-- This page plugins -->
+		<!-- ============================================================== -->
+
+</div>
+

@@ -1,0 +1,1 @@
+CREATE DATABASE workstocks_java;

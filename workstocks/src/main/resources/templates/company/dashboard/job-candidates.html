@@ -1,0 +1,88 @@
+
+
+    <!-- Manage Job Offer -->
+    <div class="tab-pane active container" id="postNewJob" th:fragment="manage-jobs-candidates">
+    
+    	<!-- Modal Delete Job -->
+	    <div class="modal fade" id="delete-job-modal" tabindex="-1" role="dialog" aria-labelledby="delete-job-modal" aria-hidden="true">
+	        <div class="modal-dialog" role="document">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                    <h5 class="modal-title" th:text="#{{mj.modalTitle}}">modalTitle</h5>
+	                </div>
+	                <div class="modal-body" th:text="#{{mj.modalBody}}">modalBody</div>
+	                <div class="modal-footer">
+	                    <button type="button" class="btn btn-primary" data-dismiss="modal">[[#{mj.cancel}]]</button>
+	                    <a id="buttonDelete" href="#" class="btn btn-danger color--white" style="border-color: transparent!important;">[[#{mj.delete}]]</a>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+
+        <div class="tr-single-box ">
+            <div class="tr-single-header mb-3">
+                <h4><i class="ti-layers-alt"></i>[[#{mj.titleCandidates} + ${jobName}]]</h4>
+            </div>
+
+            <div class="container">
+
+                    <!-- Single Candidate List -->
+                    <div th:if="${candidates.elements != null && !candidates.elements.isEmpty()}" class="candidate-list-layout p-2" th:each="candidate : ${candidates.elements}">
+                        <div class="cll-wrap">
+                            <div class="cll-thumb">
+                                <a href="#" style="cursor: auto"><img th:src="${candidate.applicant.avatar} ? @{'data:image/jpeg;base64,' + ${candidate.applicant.base64Avatar}} : @{/img/default.png}" class="img-responsive img-circle" alt="" /></a>
+                            </div>
+                            <div class="cll-caption">
+                                <h4><a th:href="@{/public/applicant(id=${candidate.applicant.id})}" th:text="${candidate.applicant.name + ' ' + candidate.applicant.surname}">name</a><span th:if="${!candidate?.applicant.jobTitle.isBlank}"><i class="ti-briefcase" ></i>[[${candidate?.applicant.jobTitle}]]</span></h4>
+                                <ul>
+                                    <li th:if="${candidate.applicant.address != null and candidate.applicant.address.city != null and candidate.applicant.address.country != null and !candidate.applicant.address.city.isBlank and !candidate.applicant.address.country.isBlank}">
+                                        <i class="ti-location-pin text-danger"></i>
+                                        [[${candidate.applicant.address.city != null ? candidate.applicant.address.city : null} + ${candidate.applicant.address.country != null ? ', ' + candidate.applicant.address.country : null}]]
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="container" th:unless="${candidates != null && !candidates.elements.isEmpty()}">        
+                    	<p>[[#{mj.noContentCandidates} + ${jobName}]]</p>        
+                	</div>
+
+                    
+
+
+            </div>
+
+        </div>
+         <div class="row">              
+				<div class="col-md-12" id="page-selection"></div>
+			</div>
+			
+			
+			<script>
+		 		document.addEventListener("DOMContentLoaded", function () {
+					let paginazione = $('#page-selection').bootpag({
+						total: "[[${candidates.response.totalPages}]]",
+						page: "[[${candidates.response.pageNumber}]]",
+						maxVisible: 10
+					}).on("page", function(event, num) {
+						//azioni da eseguire all'evento di cambio pagina '
+						let varName = "[[${jobName}]]";
+						let varId = "[[${jobId}]]";
+						
+						varName = varName.replaceAll(' ','%20');
+						
+						window.location.href = '/handle-offers/candidates?jobId=' + varId + '&jobName=' + varName + '&page=' + num;
+						/*]]>*/
+					});
+				});
+		 	</script>
+
+        <script>
+            window.addEventListener('load', function () {
+                // tooltip
+                $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                });
+            });
+        </script>

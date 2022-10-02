@@ -1,0 +1,72 @@
+version: '3'
+services:
+
+  mongo_database:
+    hostname: mongodbrs
+    build:
+      context: ./setup-mongo
+    container_name: mongo-db-container
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: blog
+      MONGO_INITDB_ROOT_USERNAME: blog-user
+      MONGO_INITDB_ROOT_PASSWORD: blog-password
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    command: --replSet replica-set --keyFile /data/key/replica-set.key  
+    networks: 
+      - mongo-compose-network 
+  
+  mongo-express:
+    container_name: mongo-express
+    restart: always
+    image: mongo-express:latest
+    depends_on:
+      - mongo_database 
+    networks: 
+      - mongo-compose-network
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo-db-container
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=blog-user
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=blog-password
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=password
+    ports:
+      - '8081:8081'
+ 
+  activemq:
+    image: webcenter/activemq:latest
+    ports:
+      # ui
+      - "8161:8161"
+      # jms
+      - "61616:61616"
+    networks: 
+      - apache-amq-compose-network
+    volumes: 
+      - activemq-data:/opt/activemq/conf
+      - activemq-data:/data/activemq
+      - activemq-data:/var/log/activemq
+    environment:
+      ACTIVEMQ_REMOVE_DEFAULT_ACCOUNT: "true"
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: supersegretissima
+      ACTIVEMQ_WRITE_LOGIN: workstocks-amq-user
+      ACTIVEMQ_WRITE_PASSWORD: workstocks-amq-password
+      ACTIVEMQ_READ_LOGIN: workstocks-amq-user
+      ACTIVEMQ_READ_PASSWORD: workstocks-amq-password
+      ACTIVEMQ_ENABLED_SCHEDULER: "true"
+      ACTIVEMQ_MIN_MEMORY: 512
+      ACTIVEMQ_MAX_MEMORY: 2048
+
+volumes:
+  mongodb_data_container: {}
+  activemq-data: {}
+  
+networks:
+  apache-amq-compose-network:
+    driver: bridge
+  mongo-compose-network:
+    driver: bridge

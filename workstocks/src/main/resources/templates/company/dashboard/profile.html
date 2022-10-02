@@ -1,0 +1,233 @@
+
+
+    <!-- My Profile -->
+    <div class="tab-pane active container" id="profile">
+
+            <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="#{${successMsg}}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+        <form method="POST" th:action="@{/company/profile}" th:object="${user}" enctype="multipart/form-data">
+        <!-- User Info -->
+            <div class="tr-single-box">
+                <div class="tr-single-header">
+                    <h4 th:text="#{profile.profileTitle}"><i class="ti-id-badge"></i>Profile title_</h4>
+                </div>
+                <div class="tr-single-body">
+
+                    <div class="row">
+                    
+                    	<input name="id" type="hidden" th:field="*{id}">
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.emailProfile}">email profile</label>
+                                <input class="form-control" name="email" required type="email" th:value="${user.getEmail()}" th:field="*{email}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('email')}" th:text="${err}"><strong>error email</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.name}">NAME</label>
+                                <input class="form-control" name="name" required type="text" th:value="${user.name}" th:field="*{name}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('name')}" th:text="${err}"><strong>error name</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.surname}">SURNAME</label>
+                                <input class="form-control" name="surname" required type="text" th:value="${user.surname}" th:field="*{surname}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('surname')}" th:text="${err}"><strong>error surname</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.phoneContact}">PHONE CONTACT</label>
+                                <input class="form-control" name="phoneContact" type="text" th:value="${user.company.telephone}" th:placeholder="#{profile.phoneContact}" th:field="*{company.telephone}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.telephone')}" th:text="${err}"><strong>error phone</strong></p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- /User Info -->
+
+            <!-- Company Info -->
+            <div class="tr-single-box">
+                <div class="tr-single-header">
+                    <h4 th:text="#{profile.companyTitle}"><i class="ti-home"></i>COMPANY TITLE</h4>
+                </div>
+
+                <div class="tr-single-body">
+                    <div class="row">
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.companyName}">COMPANY NAME</label>
+                                <input class="form-control" required name="companyName" type="text"  th:value="${user.company.name}" th:field="*{company.name}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.name')}" th:text="${err}"><strong>error company name</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.overview}">OVERVIEW</label>
+                                <textarea id="summernote" name="description" th:field="*{company.overview}">[[${user.company.overview}]]</textarea>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.overview')}" th:text="${err}"><strong>error description</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.vatNumber}">VAT NUMBER</label>
+                                <input class="form-control" required name="vatNumber" type="number" th:value="${user.company.vatNumber}" th:field="*{company.vatNumber}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.vatNumber')}" th:text="${err}"><strong>error vat</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.companyForm}">COMPANY FORM</label>
+                                <input class="form-control" required name="companyForm" type="text" th:value="${user.company.companyForm}" th:field="*{company.companyForm}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.companyForm')}" th:text="${err}"><strong>error company form</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.avatar}">AVATAR</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="clogo" name="avatarPhoto" accept=".png,.jpg,.jpeg">
+                                    <label class="custom-file-label" for="clogo" th:text="#{profile.chooseImg}">CHOOSE IMG</label>
+                                </div>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('avatar')}" th:text="${err}"><strong>error avatar</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.website}">WEBSITE</label>
+                                <input class="form-control" type="text" name="website" th:value="${user.company.website}" th:placeholder="#{profile.website}" th:field="*{company.website}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.website')}" th:text="${err}"><strong>error website</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.slogan}">SLOGAN</label>
+                                <input class="form-control" type="text" name="slogan" th:placeholder="#{profile.slogan}" th:value="${user.company.slogan}" th:field="*{company.slogan}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.slogan')}" th:text="${err}"><strong>error slogan</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.foundationYear}">FOUNDATION YEAR</label>
+                                <input class="form-control" required name="foundationYear" type="number"  th:value="${user.company.foundationYear}" th:field="*{company.foundationYear}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.foundationYear')}" th:text="${err}"><strong>error foundation year</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.employeesNumber}">EMPLOYEES NUMBER</label>
+                                <input class="form-control" required name="employeesNumber" type="number"  th:value="${user.company.employeesNumber}" th:field="*{company.employeesNumber}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.employeesNumber')}" th:text="${err}"><strong>error employees number</strong></p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- /Company Info -->
+
+            <!-- Working Place Info -->
+            <div class="tr-single-box">
+                <div class="tr-single-header">
+                    <h4 th:text="#{profile.workingPlaceTitle}"><i class="ti-location-pin"></i>WORKING PLACE TITLE</h4>
+                </div>
+                <div class="tr-single-body">
+
+                    <div class="row">
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.address}"></label>
+                                <input class="form-control" name="address" required type="text" th:value="${user.company.mainWorkingPlace.address.street}" th:field="*{company.mainWorkingPlace.address.street}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.mainWorkingPlace.address.street')}" th:text="${err}"><strong>error address</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.city}">CITY</label>
+                                <input class="form-control" name="city" required type="text" th:value="${user.company.mainWorkingPlace.address.city}" th:field="*{company.mainWorkingPlace.address.city}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.mainWorkingPlace.address.city')}" th:text="${err}"><strong>error city</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.country}">COUNTRY</label>
+                                <input class="form-control" name="country" maxlength="2" required type="text" th:value="${user.company.mainWorkingPlace.address.country}" th:field="*{company.mainWorkingPlace.address.country}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.mainWorkingPlace.address.street')}" th:text="${err}"><strong>error street</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{profile.typeWorkingPlace}">TYPE WORKING PLACE</label>
+                                <select required class="form-control" name="typeWorkingPlace" id="working-place-type" th:field=*{company.mainWorkingPlace.workingPlaceType}>
+                                    <option th:selected="${user.company.mainWorkingPlace.workingPlaceType.name == 'LEGAL'}" th:value="${T(it.workstocks.entity.enums.WorkingPlaceType).LEGAL}" th:text="#{profile.legal}">LEG</option>
+                                    <option th:selected="${user.company.mainWorkingPlace.workingPlaceType.name == 'COMMERCIAL'}" th:value="${T(it.workstocks.entity.enums.WorkingPlaceType).COMMERCIAL}" th:text="#{profile.commercial}">COMM</option>
+                                    <option th:selected="${user.company.mainWorkingPlace.workingPlaceType.name == 'OPERATIVE'}" th:value="${T(it.workstocks.entity.enums.WorkingPlaceType).OPERATIVE}" th:text="#{profile.operative}">OPERAT</option>
+                                </select>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('company.mainWorkingPlace.workingPlaceType')}" th:text="${err}"><strong>error street</strong></p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- /Working Place Info -->
+
+            <button type="submit" class="btn btn-info btn-md full-width" th:text="#{profile.buttonSave}">BUTTON SAVE<i class="ml-2 ti-arrow-right"></i></button>
+        </form>
+
+
+    <script>
+        $(document).ready(function() {
+            $('#working-place-type').select2({
+                minimumResultsForSearch: -1
+            });
+        });
+    </script>
+
+</div>

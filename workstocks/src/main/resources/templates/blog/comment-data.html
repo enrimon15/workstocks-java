@@ -1,0 +1,32 @@
+<ul id="singlecomment-detail" class="comment-detail-list">
+
+			<div th:if="${comments != null AND !comments.isEmpty()}">
+			<li class="comment" id="comment" th:each="comment : ${comments}">
+               <div class="row">
+                   <div class="comment col">
+                       <div class="comment__image">
+                          <img alt="" th:src="${comment.userAvatar != null} ? 'data:image/jpeg;base64,' + ${comment.base64UserAvatar} : '/img/default.png'" class="avatar avatar-75 photo" height="75" width="75">
+                      </div>
+                              <div class="comment__text">
+                                  <a th:href="'/public/applicant?id=' + ${comment.userId}">
+									<h5 th:text="${comment.userName}">user name</h5>
+								  </a>
+                                  <span>
+                                  	<em th:text="${#temporals.format(comment.createdAt,'dd-MM-yyyy')}">created_at</em>
+                              	 </span>
+                                  <p th:text="${comment.body}">comment body</p>
+                              </div>
+                   </div>
+
+					<div th:if="${currentUserID != null AND comment.userId == currentUserID}" class="col text-right">
+					   <a th:href="'/applicant/blog/comment/delete?commentId=' + ${comment.id}" data-toggle="tooltip" data-placement="top" th:title="#{ocv.delete}"><i class="ti-trash"></i></a>
+					</div>
+
+                   <hr>
+               </div>
+		</li><!-- #comment-## -->
+		</div>
+	<div th:unless="${comments != null AND !comments.isEmpty()}">
+		<p class="mb-3">[[#{blog.noComments}]]</p>
+	</div>
+</ul>

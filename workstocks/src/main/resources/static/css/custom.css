@@ -1,0 +1,100 @@
+.mf-link-hover:hover {
+    color: #00a94f!important;
+}
+
+.dashboard-verticle-nav .active {
+    color: #00a94f;
+}
+
+@media screen and (max-width: 992px) {
+    .display-desk {
+        display: none!important;
+    }
+}
+
+@media screen and (min-width: 993px) {
+    .display-desk {
+        display: inline-block!important;
+    }
+}
+
+@media screen and (min-width: 993px) {
+    .display-mob {
+        display: none!important;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .display-mob {
+        display: inline-block!important;
+    }
+}
+
+.icon-sub-index {
+    z-index: 0!important;
+}
+
+.rating-wrapper {
+  align-self: center;
+  box-shadow: 7px 7px 25px rgba(198, 206, 237, .7),
+              -7px -7px 35px rgba(255, 255, 255, .7),
+              inset 0px 0px 4px rgba(255, 255, 255, .9),
+              inset 7px 7px 15px rgba(198, 206, 237, .8); 
+  border-radius: 5rem;
+  display: inline-flex;
+  direction: rtl !important;
+  padding: 1.2rem 1.5rem 1.2rem 0.3rem;
+  margin-left: auto;
+}
+
+.rating-wrapper label {
+    color: #E1E6F6;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 3rem;
+    padding: 1rem .6rem;
+    transition: color 0.5s;
+  }
+  
+.rating-wrapper svg {
+     -webkit-text-fill-color: transparent;
+     -webkit-filter: drop-shadow (4px 1px 6px rgba(198, 206, 237, 1));
+     filter:drop-shadow(5px 1px 3px rgba(198, 206, 237, 1));
+  }
+
+.rating-wrapper input {
+  height: 100%;
+  width: 100%;
+}
+
+.rating-wrapper label.star-rating::before {
+	display: none!important;
+}
+
+.rating-wrapper label.star-rating::after {
+	display: none!important;
+}
+
+.rating-wrapper label.star-rating.star::before {
+	display: none!important;
+}
+
+.rating-wrapper label.star-rating.star::after {
+	display: none!important;
+}
+
+.rating-wrapper input {
+  display: none!important;
+}
+
+.rating-wrapper label:hover,
+.rating-wrapper label:hover ~ label,
+.rating-wrapper input:checked ~ label  {
+  color: #34AC9E;
+}
+
+.rating-wrapper label:hover,
+.rating-wrapper label:hover ~ label,
+.rating-wrapper input:checked ~ label  {
+  color: #34AC9E;
+}

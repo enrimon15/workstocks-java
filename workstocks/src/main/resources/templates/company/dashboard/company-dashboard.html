@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layouts/outline}"> 	
+<div layout:fragment="content">
+
+	<!-- ============== Candidate Dashboard ====================== -->
+	<section class="tr-single-detail gray-bg">
+		<div class="container">
+			<div class="row">
+
+				<!-- Sidebar Start -->
+				<div class="col-md-4 col-sm-12">
+					<div class="dashboard-wrap">
+
+						<div class="dashboard-thumb">
+							<div class="dashboard-th-pic">
+								<img 
+									th:src="${#authentication.principal.user.avatar} ? @{'data:image/jpeg;base64,' + ${#authentication.principal.user.base64Avatar}} : @{/img/default.png}" 
+									class="img-fluid mx-auto img-circle" 
+									alt="" 
+								/>
+							</div>
+							<h4 class="mb-1" th:text="${#authentication.principal.user.company.name}">COMP NAME</h4>
+							<span class="text-success" th:text="${#authentication.principal.user.company.slogan}">SLOG</span>
+						</div>
+
+						<!-- Nav tabs -->
+						<ul class="nav dashboard-verticle-nav"> <!--nav-pills-->
+							<li class="nav-item">
+								<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/company/profile' ? 'active':''}" th:href="@{/company/profile}" ><i class="ti-home"></i>[[#{company.menu.profile}]]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().contains('/company/working-places') ? 'active':''}" th:href="@{/company/working-places}" ><i class="ti-pin"></i>[[#{company.menu.workingPlaces}]]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/common/change-password' ? 'active':''}" th:href="@{/common/change-password}"><i class="lni-lock"></i>[[#{company.menu.changePass}]]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" th:classappend="${(#httpServletRequest.getRequestURI() == '/company/new-offer' && #httpServletRequest.getQueryString() == null) ? 'active':''}" th:href="@{/company/new-offer}" ><i class="ti-plus"></i>[[#{company.menu.newJob}]]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" th:classappend="${(#httpServletRequest.getRequestURI().contains('/company/handle-offers') || (#httpServletRequest.getRequestURI() == '/company/new-offer' && #httpServletRequest.getQueryString() != null)) ? 'active':''}" th:href="@{/company/handle-offers}" ><i class="lni-briefcase"></i>[[#{company.menu.createdJobs}]]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/public/show-profile' ? 'active':''}" th:href="@{/public/company?id=}+${#authentication.principal.user.id}"><i class="lni-user"></i>[[#{company.menu.showProfile}]]</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" th:href="@{/logout}">
+									<i class="lni-exit"></i> [[#{company.menu.logout}]]
+								</a>
+							</li>
+						</ul>
+
+					</div>
+				</div>
+				<!-- /col-md-4 -->
+
+				<div class="col-md-8 col-sm-12">
+					<!-- Tab panes -->
+					<div th:if="${#httpServletRequest.getRequestURI() == '/company/profile'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{company/dashboard/profile :: div}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/company/working-places'}" class="tab-content">
+						<!-- yields here the main content page -->
+						<div th:replace="~{company/dashboard/working-places :: working-places}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI().contains('/company/working-places/edit')}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{company/dashboard/edit-working-place :: edit-working-places}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/common/change-password'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{dashboard-common/change-password :: div}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/company/new-offer'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{company/dashboard/post-new-job :: div}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/company/handle-offers'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{company/dashboard/manage-job-offer :: job-offers}"></div>
+					</div>
+					<div th:if="${#httpServletRequest.getRequestURI() == '/company/handle-offers/candidates'}" class="tab-content">
+						<!-- yields here the main content page --> 
+						<div th:replace="~{company/dashboard/job-candidates :: manage-jobs-candidates}"></div>
+					</div>
+					
+
+				</div>
+
+			</div>
+		</div>
+	</section>
+	<!-- ============== Candidate Dashboard ====================== -->
+	
+	<script>
+    $(document).ready(function() {
+        $('#level-skill-select').select2({
+            minimumResultsForSearch: -1
+        });
+        
+        $('.toggle-password').click(function() {
+        
+        let owner = this;
+	
+		  $(owner).toggleClass('fa-eye fa-eye');
+		  var input = $($(owner).attr('toggle'));
+		  if (input.attr('type') == 'password') {
+		    input.attr('type', 'text');
+		    $(owner).toggleClass('fa-eye-slash fa-eye');
+		  } else {
+		    input.attr('type', 'password');
+		    $(owner).toggleClass('fa-eye fa-eye-slash');
+		  }
+		});
+    });
+</script>
+
+</div>	

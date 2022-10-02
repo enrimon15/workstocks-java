@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layouts/outline}">
+<div layout:fragment="content">
+
+<!-- ============================================================== -->
+<!-- Preloader - style you can find in spinners.css -->
+<!-- ============================================================== -->
+<div class="Loader"></div>
+
+<!-- ============================================================== -->
+<!-- Main wrapper - style you can find in pages.scss -->
+<!-- ============================================================== -->
+
+<!-- ======================= Start Banner ===================== -->
+<section class="page-title-banner" th:style="'background:url('+@{~/img/joboffer-details-banner.jpeg}+');'">
+    <div class="container">
+        <div class="row m-0 align-items-end detail-swap">
+            <div class="tr-list-wrap">
+                <div class="tr-list-detail">
+                    <div class="tr-list-thumb">
+                        <img th:src="${jobOffer.company.companyOwner.avatar} ? @{'data:image/jpeg;base64,' + ${jobOffer.company.companyOwner.base64Avatar}} : @{/img/default.png}" class="img-responsive" alt="" />
+                    </div>
+                    <div class="tr-list-info">
+                        <h4 class="mb-1" th:text="${jobOffer.title}">title</h4>
+                        <h6 class="font-14"><a th:href="@{/public/company(id=${jobOffer.company.companyOwner.id})}" class="text-warning" th:text="${jobOffer.company.name}">name</a></h6>
+                        <p class="mb-1"><i class="ti-location-pin mr-2"></i>[[${jobOffer?.workingPlace?.address?.street} + ', ' + ${jobOffer?.workingPlace?.address?.city} + ' (' + ${jobOffer?.workingPlace?.address?.country} +')']]</p>
+                    </div>
+                </div>
+                <div class="listing-detail_right">
+                    <div class="listing-detail-item">
+                            <a id="butt-apply"  th:if="${isApplicated}"  style="cursor: not-allowed" href="javascript:void(0)" class="btn btn-list full-width mb-2 text-warning">
+                            	<i class="ti-email mr-2"></i>
+                            	[[#{jobs.alreadyApplied}]]
+                        	</a>
+                        
+                            <a id="butt-apply" th:unless="${isApplicated}" href="javascript:void(0)" data-toggle="modal" data-target="#apply" class="btn btn-list full-width mb-2 text-warning">
+                            	<i class="ti-email mr-2"></i>
+                            	[[#{jobs.applyThisJob}]]
+                        	</a>
+                        	<br>
+                        
+                        <!--<a href="#" class="btn btn-list full-width color--linkedin"><i class="ti-linkedin mr-2"></i> Apply With linkedin</a>-->
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="apply" tabindex="-1" role="dialog" aria-labelledby="apply" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel" th:text="#{jobs.applyThisJob}"></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div sec:authorize="isAnonymous() OR !hasRole('APPLICANT')" class="modal-body">
+                                   		[[#{jobs.applyGuest}]]
+                                    </div>
+                                    
+                                    <div class="modal-body" sec:authorize="hasRole('APPLICANT')" th:utext="#{jobs.applyMessage(${jobOffer.title},${jobOffer.company.name})}">
+                                    	OFFERTA
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{jobs.cancelButton}">CANCEL</button>
+                                        <button sec:authorize="hasRole('APPLICANT')" type="button" id="confirmationButton" class="btn btn-primary" th:onclick="sendApplication('/applicant/job-offer/apply?id=' + [[${jobOffer.id}]])" th:text="#{jobs.confirmButton}">CONFIRM BUTTON</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ======================= End Banner ===================== -->
+
+<!-- ============== Job Detail ====================== -->
+<section class="tr-single-detail gray-bg">
+    <div class="container">
+
+        
+            <div class="alert alert-success alert-dismissible fade show d-none" role="alert" id="successBox">
+		        <span id="successMsg"></span>
+		        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		            <span aria-hidden="true">&times;</span>
+		        </button>
+		    </div>
+        
+
+        <div class="alert alert-danger alert-dismissible fade show d-none" role="alert" id="errorBox">
+        	<span id="errorMsg"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        
+        <div class="row">
+
+            <div class="col-lg-8 col-md-12 col-sm-12">
+
+                <!-- Default Style -->
+                <div class="single-job-head head-light" style="border: 1px solid #00a94f!important;">
+                    <div class="single-job-info pl-0">
+                        <ul class="tags-jobs row">
+                            <li class="col mx-auto text-left"><i class="ti-file float-none"></i> <strong>[[#{jobs.applications}]]</strong> [[${applicationsSize}]]</li>
+                            <li class="col mx-auto text-center"><i class="ti-calendar float-none"></i> <strong>[[#{jobs.postDate}]]</strong> [[${#temporals.format(jobOffer.createdAt,'dd-MM-yyyy')}]]</li>
+                            <li class="col mx-auto text-right"><i class="ti-alarm-clock float-none"></i> <strong>[[#{jobs.dueDate}]]</strong> [[ ${#temporals.format(jobOffer.dueDate,'dd-MM-yyyy')}]]</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Job Overview -->
+                <div class="tr-single-box">
+                    <div class="tr-single-header">
+                        <h4><i class="ti-info"></i>[[#{jobs.jobDescription}]]</h4>
+                    </div>
+                    <div class="tr-single-body" th:utext="${jobOffer.description}">
+                        DESCRIPTION
+                    </div>
+                </div>
+
+                <!-- Job Qualifications -->
+                <div class="tr-single-box">
+                    <div class="tr-single-header">
+                        <h4><i class="ti-book"></i>[[#{filters.skillsTitle}]]</h4>
+                    </div>
+                    <div class="tr-single-body">
+                        <ul class="jb-detail-list">
+                            <li th:each="skill : ${jobOffer.skillFromFE}" th:text="${skill}">SKILL NAME</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <!-- Job Education
+                <div class="tr-single-box">
+                    <div class="tr-single-header">
+                        <h4><i class="ti-cup"></i>[[#{jobs.education}]]</h4>
+                    </div>
+                    <div class="tr-single-body">
+                        <ul class="jb-detail-list">
+                            <li>Higher(10th Pass) (Preferred)</li>
+                            <li>Higher Secondary(12th Pass) (Preferred)</li>
+                            <li>Any Graduattion Degree(13th Pass) (Preferred)</li>
+                        </ul>
+                    </div>
+                </div>-->
+
+				<a id="butt-apply2" th:if="${isApplicated}" href="javascript:void(0)" style="cursor: not-allowed" class="btn btn-info full-width mb-2" th:text="#{jobs.alreadyApplied}">Already Applied</a>
+                
+                <a id="butt-apply2" th:if="${!isApplicated}" href="javascript:void(0)" data-toggle="modal" data-target="#apply" class="btn btn-info full-width mb-2" th:text="#{jobs.applyThisJob}">applyThisJob</a>
+                
+            </div>
+
+            <!-- Sidebar Start -->
+            <div class="col-lg-4 col-md-12 col-sm-12">
+
+                <div class="offer-btn-wrap mb-4">
+                        <a id="butt-favorite" th:if="${isFavorite}" th:onclick="executeFavorite('/applicant/job-offer/favorite?jobId=' + [[${jobOffer.id}]])" href="javascript:void(0)" class="btn btn-info btn-md full-width"><i class="mr-2 ti-trash"></i>[[#{jobs.alreadyFavorite}]]</a>
+                        <a id="butt-favorite" sec:authorize="hasRole('APPLICANT')" th:unless="${isFavorite}" th:onclick="executeFavorite('/applicant/job-offer/favorite?jobId=' + [[${jobOffer.id}]])" href="javascript:void(0)" class="btn btn-info btn-md full-width"><i class="mr-2 ti-bookmark"></i>[[#{jobs.addBookMark}]]</a>
+                        <a sec:authorize="!hasRole('APPLICANT')" th:unless="${isFavorite}" href="javascript:void(0)" class="btn btn-info btn-md full-width" style="cursor: not-allowed;"><i class="mr-2 ti-bookmark"></i>[[#{jobs.addBookMark}]]</a>
+                </div>
+
+                <!-- Job Overview -->
+                <div class="tr-single-box">
+                    <div class="tr-single-header">
+                        <h4><i class="ti-direction"></i>[[#{jobs.jobOverview}]]</h4>
+                    </div>
+
+                    <div class="tr-single-body">
+                        <ul class="extra-service">
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <div class="icon-box-round">
+                                        <i class="ti-money"></i>
+                                    </div>
+                                    <div class="icon-box-text">
+                                        <strong class="d-block" th:text="#{jobs.offeredSalary}"></strong>
+                                        [[${jobOffer.minSalary} + 'K - ' + ${jobOffer.maxSalary} +'K']]
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <div class="icon-box-round">
+                                        <i class="lni-users"></i>
+                                    </div>
+                                    <div class="icon-box-text">
+                                        <strong class="d-block" th:text="#{jobs.gender}"></strong>
+                                        [[#{'jobs.'+${jobOffer.gender}}]]
+                                    </div>
+                                </div>
+                            </li>
+
+                            <!-- CI SERVE ?
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <div class="icon-box-round">
+                                        <i class="ti-home"></i>
+                                    </div>
+                                    <div class="icon-box-text">
+                                        <strong class="d-block">Industry</strong>
+                                        Management
+                                    </div>
+                                </div>
+                            </li>
+                            -->
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <div class="icon-box-round">
+                                        <i class="lni-certificate"></i>
+                                    </div>
+                                    <div class="icon-box-text">
+                                        <strong class="d-block" th:text="#{jobs.experience}"></strong>
+                                    	[[${jobOffer.experience} + ' ' + #{jobs.year}]]
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <div class="icon-box-round">
+                                        <i class="lni lni-briefcase"></i>
+                                    </div>
+                                    <div class="icon-box-text">
+                                        <strong class="d-block" th:text="#{jobs.offerType}"></strong>
+                                    	[[#{'jobs.'+ ${jobOffer.contractType}}]]
+                                    </div>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Company Address -->
+                <div class="tr-single-box">
+                    <div class="tr-single-header">
+                        <h4><i class="ti-direction"></i>[[#{jobs.companyAddress}]]</h4>
+                    </div>
+
+                    <div class="tr-single-body">
+                        <ul class="extra-service">
+                            <li>
+                                <div class="icon-box-icon-block">
+                                <a th:href="'https://www.google.com/maps/search/?api=1&amp;query=' 
+                                + ${jobOffer.company.mainWorkingPlace.address.street.replace('\\s','%20')} + '%20' 
+                                + ${jobOffer.company.mainWorkingPlace.address.city.replace('\\s','%20')} + '%20' 
+                                + ${jobOffer.company.mainWorkingPlace.address.country.replace('\\s','%20')}">
+                                    
+                                   
+                                        <div class="icon-box-round">
+                                            <i class="lni-map-marker"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                        	[[${jobOffer.company.mainWorkingPlace.address.street} + ', ' + ${jobOffer.company.mainWorkingPlace.address.city} + ', '+ ${jobOffer.company.mainWorkingPlace.address.country}]]
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a th:href="'tel:'+${jobOffer.company.telephone}">
+                                        <div class="icon-box-round">
+                                            <i class="lni-phone-handset"></i>
+                                        </div>
+                                        <div class="icon-box-text" th:text="${jobOffer.company.telephone}">
+                                            
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a th:href="'mailto:'+${jobOffer.company.companyOwner.email}">
+                                        <div class="icon-box-round">
+                                            <i class="lni-envelope"></i>
+                                        </div>
+                                        <div class="icon-box-text" th:text="${jobOffer.company.companyOwner.email}">email
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a th:href="${jobOffer.company.website}">
+                                        <div class="icon-box-round">
+                                            <i class="lni-world"></i>
+                                        </div>
+                                        <div class="icon-box-text" th:text="${jobOffer.company.website}">
+                                            WEBSITE
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- Share this -->
+                <!-- <div class="tr-single-box">
+                    <div class="tr-single-header">
+                        <h4><i class="ti-share"></i>{{__('jobs/jobs.shareThisJob')}}</h4>
+                    </div>
+
+                    <div class="tr-single-body">
+                        <ul class="extra-service half">
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a href="#">
+                                        <div class="icon-box-round">
+                                            <i class="lni-facebook"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                            Facebook
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a href="#">
+                                        <div class="icon-box-round">
+                                            <i class="lni-google-plus"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                            Google plus
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a href="#">
+                                        <div class="icon-box-round">
+                                            <i class="lni-twitter"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                            Twitter
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a href="#">
+                                        <div class="icon-box-round">
+                                            <i class="lni-linkedin"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                            LinkedIn
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a href="#">
+                                        <div class="icon-box-round">
+                                            <i class="lni-instagram"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                            Instagram
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li>
+                                <div class="icon-box-icon-block">
+                                    <a href="#">
+                                        <div class="icon-box-round">
+                                            <i class="fa fa-pinterest"></i>
+                                        </div>
+                                        <div class="icon-box-text">
+                                            Pinterest
+                                        </div>
+                                    </a>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+
+                </div> -->
+
+            </div>
+            <!-- /col-md-4 -->
+        </div>
+    </div>
+</section>
+<!-- ============== Job Detail ====================== -->
+
+
+
+<script>
+
+function executeFavorite(url) {
+    $.ajax({
+        type: "GET",
+        url: url,
+        //dataType: 'json',
+        success: function (result) {
+        	let icon = result.isFavorite ? '<i class="mr-2 ti-bookmark"></i>' : '<i class="mr-2 ti-trash"></i>'; 
+        	let text = result.isFavorite ? "[[#{jobs.addBookMark}]]" : "[[#{jobs.alreadyFavorite}]]"; 
+            document.getElementById('butt-favorite').innerHTML=icon + text;
+        },
+        error: function (result) {
+        	$('#errorBox').removeClass('d-none')
+            document.getElementById('errorMsg').innerText="[[#{jobs.errorFavorite}]]";
+            console.log(result);
+        }
+    });
+}
+
+function sendApplication(url) {
+	function htmlToElement(html) {
+		let template = document.createElement('template');
+		html = html.trim(); // Never return a text node of whitespace as the result
+		template.innerHTML = html;
+		return template.content.firstChild;
+	}
+	
+	const button = document.getElementById('confirmationButton');
+	const spinner = htmlToElement('<div class="spinner-border text-success" role="status"><span class="sr-only">Loading...</span></div>');
+	button.replaceWith(spinner);
+	
+    $.ajax({
+        type: "GET",
+        url: url,
+        //dataType: 'json',
+        success: function (result) {
+            $('#apply').modal("hide");
+			$('#successBox').removeClass('d-none')
+            document.getElementById('successMsg').innerText="[[#{jobs.successSentApplication}]]";
+
+			document.getElementById('butt-apply').innerHTML='<i class="ti-email mr-2"></i>' + "[[#{jobs.alreadyApplied}]]";
+			$('#butt-apply').css('cursor', 'not-allowed');
+			$('#butt-apply').removeAttr('data-toggle');
+			$('#butt-apply').removeAttr('data-target');
+			
+			document.getElementById('butt-apply2').innerHTML="[[#{jobs.alreadyApplied}]]";
+			$('#butt-apply2').css('cursor', 'not-allowed');
+			$('#butt-apply').removeAttr('data-toggle');
+			$('#butt-apply').removeAttr('data-target');
+        },
+        error: function (result) {
+            $('#apply').modal("hide");
+			$('#errorBox').removeClass('d-none')
+            document.getElementById('errorMsg').innerText="[[#{jobs.applyError}]]";
+            console.log(result);
+        }
+    });
+}
+
+
+</script>
+</div>
+

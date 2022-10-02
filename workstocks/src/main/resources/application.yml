@@ -1,0 +1,43 @@
+
+#server:  
+#  servlet:
+#    context-path: /workstocks
+
+spring:
+  application:
+    name: WorkStocks
+  profiles:
+    active: dev
+  #jackson:
+    #default-property-inclusion: NON_NULL
+    #serialization:
+      #write-dates-as-timestamps: true
+  messages:
+    basename: i18n/index, i18n/nav, i18n/loginAndRegister, i18n/error, i18n/home, i18n/auth, i18n/dashboard/company/profile,i18n/dashboard/company/wp,i18n/dashboard/company/nj, 
+              i18n/dashboard/user/profile,i18n/dashboard/user/menu,i18n/dashboard/changePassword,i18n/dashboard/company/menu,i18n/dashboard/company/mj,i18n/dashboard/user/ocv,i18n/dashboard/user/fv,
+              i18n/dashboard/user/aj,i18n/profile/up,i18n/profile/cp,i18n/jobs/jobs,i18n/jobs/filters,i18n/mail/mailContent,i18n/blog,i18n/company/company,
+              i18n/applicant/applicant-list
+    encoding: UTF-8    
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB    
+    
+######### LOGGING ###############
+logging:
+  level:
+    root: WARN
+    org.springframework.web: ERROR
+    org.springframework.security: ERROR
+    org.hibernate: ERROR
+    it.workstocks: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+  # file in: C:/tmp/rfi-management.log
+  file:
+    name: logs/workstocks.log
+  pattern:
+    file: "%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n"    
+    
+###############################################
+############# MYUNIVAQ PROPERTIES #############
+###############################################

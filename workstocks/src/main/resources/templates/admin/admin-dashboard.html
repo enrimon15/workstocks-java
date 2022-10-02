@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layouts/outline}">
+<div layout:fragment="content" class="m-5">
+
+<!-- yields here the main content page -->
+<div th:if="${#httpServletRequest.getRequestURI() == '/common/change-password'}">
+	<!-- yields here the main content page --> 
+	<div th:replace="~{dashboard-common/change-password :: div}"></div>
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+	$('.toggle-password').click(function() {
+	
+	let owner = this;
+	
+	  $(owner).toggleClass('fa-eye fa-eye');
+	  var input = $($(owner).attr('toggle'));
+	  if (input.attr('type') == 'password') {
+	    input.attr('type', 'text');
+	    $(owner).toggleClass('fa-eye-slash fa-eye');
+	  } else {
+	    input.attr('type', 'password');
+	    $(owner).toggleClass('fa-eye fa-eye-slash');
+	  }
+	});
+});
+
+</script>
+
+</div>
+

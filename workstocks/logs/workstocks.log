@@ -1,0 +1,54 @@
+2022-mar-31 00:50:39.414 WARN  [org.springframework.jms.JmsListenerEndpointContainer#0-1] o.s.j.l.DefaultMessageListenerContainer - Setup of JMS message listener invoker failed for destination 'workstocks-queue' - trying to recover. Cause: The Consumer is closed
+2022-mar-31 00:50:39.467 WARN  [ActiveMQ Connection Executor: tcp://localhost/127.0.0.1:61616@55176] o.s.j.c.CachingConnectionFactory - Could not close shared JMS Connection
+javax.jms.JMSException: Disposed due to prior exception
+	at org.apache.activemq.util.JMSExceptionSupport.create(JMSExceptionSupport.java:72)
+	at org.apache.activemq.ActiveMQConnection.syncSendPacket(ActiveMQConnection.java:1421)
+	at org.apache.activemq.ActiveMQConnection.close(ActiveMQConnection.java:688)
+	at org.springframework.jms.connection.SingleConnectionFactory.closeConnection(SingleConnectionFactory.java:502)
+	at org.springframework.jms.connection.SingleConnectionFactory.resetConnection(SingleConnectionFactory.java:390)
+	at org.springframework.jms.connection.CachingConnectionFactory.resetConnection(CachingConnectionFactory.java:206)
+	at org.springframework.jms.connection.SingleConnectionFactory.onException(SingleConnectionFactory.java:368)
+	at org.springframework.jms.connection.SingleConnectionFactory$AggregatedExceptionListener.onException(SingleConnectionFactory.java:716)
+	at org.apache.activemq.ActiveMQConnection$5.run(ActiveMQConnection.java:1967)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: org.apache.activemq.transport.TransportDisposedIOException: Disposed due to prior exception
+	at org.apache.activemq.transport.ResponseCorrelator.onException(ResponseCorrelator.java:125)
+	at org.apache.activemq.transport.TransportFilter.onException(TransportFilter.java:114)
+	at org.apache.activemq.transport.TransportFilter.onException(TransportFilter.java:114)
+	at org.apache.activemq.transport.WireFormatNegotiator.onException(WireFormatNegotiator.java:173)
+	at org.apache.activemq.transport.AbstractInactivityMonitor.onException(AbstractInactivityMonitor.java:345)
+	at org.apache.activemq.transport.TransportSupport.onException(TransportSupport.java:96)
+	at org.apache.activemq.transport.tcp.TcpTransport.run(TcpTransport.java:219)
+	... 1 common frames omitted
+Caused by: java.io.EOFException: null
+	at java.base/java.io.DataInputStream.readInt(DataInputStream.java:397)
+	at org.apache.activemq.openwire.OpenWireFormat.unmarshal(OpenWireFormat.java:268)
+	at org.apache.activemq.transport.tcp.TcpTransport.readCommand(TcpTransport.java:240)
+	at org.apache.activemq.transport.tcp.TcpTransport.doRun(TcpTransport.java:232)
+	at org.apache.activemq.transport.tcp.TcpTransport.run(TcpTransport.java:215)
+	... 1 common frames omitted
+2022-mar-31 00:50:39.513 ERROR [org.springframework.jms.JmsListenerEndpointContainer#0-1] o.s.j.l.DefaultMessageListenerContainer - Could not refresh JMS Connection for destination 'workstocks-queue' - retrying using FixedBackOff{interval=5000, currentAttempts=0, maxAttempts=unlimited}. Cause: Could not connect to broker URL: tcp://localhost:61616. Reason: java.net.ConnectException: Connection refused (Connection refused)
+2022-mar-31 00:50:44.516 ERROR [org.springframework.jms.JmsListenerEndpointContainer#0-1] o.s.j.l.DefaultMessageListenerContainer - Could not refresh JMS Connection for destination 'workstocks-queue' - retrying using FixedBackOff{interval=5000, currentAttempts=1, maxAttempts=unlimited}. Cause: Could not connect to broker URL: tcp://localhost:61616. Reason: java.net.ConnectException: Connection refused (Connection refused)
+2022-mar-31 10:37:42.306 INFO  [restartedMain] i.w.WorkstocksApplication - Starting WorkstocksApplication using Java 11.0.1 on MBP-di-Enrico.station with PID 93197 (/Users/enricomonte/Documents/workspace-master/JEE-esame/workstocks-java/workstocks/target/classes started by enricomonte in /Users/enricomonte/Documents/workspace-master/JEE-esame/workstocks-java/workstocks)
+2022-mar-31 10:37:42.309 DEBUG [restartedMain] i.w.WorkstocksApplication - Running with Spring Boot v2.4.5, Spring v5.3.6
+2022-mar-31 10:37:42.310 INFO  [restartedMain] i.w.WorkstocksApplication - The following profiles are active: dev
+2022-mar-31 10:37:49.067 WARN  [restartedMain] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2022-mar-31 10:37:49.221 DEBUG [restartedMain] i.w.s.j.JWTAuthenticationFilter - Filter 'JWTAuthenticationFilter' configured for use
+2022-mar-31 10:37:52.790 INFO  [restartedMain] i.w.WorkstocksApplication - Started WorkstocksApplication in 11.197 seconds (JVM running for 12.717)
+2022-mar-31 11:09:21.461 DEBUG [http-nio-9100-exec-2] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4MDQxNjEsImlhdCI6MTY0ODcxNzc2MTQyN30.mwa2D6e_xkFauCRe-Ox-UXNiKDQQxvoGJuCTJKQoevY
+2022-mar-31 15:48:49.419 INFO  [restartedMain] i.w.WorkstocksApplication - Starting WorkstocksApplication using Java 11.0.1 on MBP-di-Enrico.station with PID 97191 (/Users/enricomonte/Documents/workspace-master/JEE-esame/workstocks-java/workstocks/target/classes started by enricomonte in /Users/enricomonte/Documents/workspace-master/JEE-esame/workstocks-java/workstocks)
+2022-mar-31 15:48:49.422 DEBUG [restartedMain] i.w.WorkstocksApplication - Running with Spring Boot v2.4.5, Spring v5.3.6
+2022-mar-31 15:48:49.422 INFO  [restartedMain] i.w.WorkstocksApplication - The following profiles are active: dev
+2022-mar-31 15:48:55.026 WARN  [restartedMain] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2022-mar-31 15:48:55.143 DEBUG [restartedMain] i.w.s.j.JWTAuthenticationFilter - Filter 'JWTAuthenticationFilter' configured for use
+2022-mar-31 15:48:58.047 INFO  [restartedMain] i.w.WorkstocksApplication - Started WorkstocksApplication in 9.092 seconds (JVM running for 10.504)
+2022-mar-31 15:52:44.787 DEBUG [http-nio-9100-exec-2] i.w.q.QueueProducer - QUEUE:: sending message='EmailMessageJob(emailType=APPLICATION, JobOfferId=456, applicantId=6500)'
+2022-mar-31 15:52:45.106 DEBUG [org.springframework.jms.JmsListenerEndpointContainer#0-1] i.w.q.QueueConsumer - QUEUE RECEIVE:: EmailMessageJob(emailType=APPLICATION, JobOfferId=456, applicantId=6500)
+2022-mar-31 17:07:37.921 DEBUG [http-nio-9100-exec-3] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4MjU2NTcsImlhdCI6MTY0ODczOTI1Nzg3MX0.6MREAFkum5ktbxI508ASWKkxs9_nJRPFaLNw8BuF3U0
+2022-mar-31 17:18:18.493 DEBUG [http-nio-9100-exec-10] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4MjYyOTgsImlhdCI6MTY0ODczOTg5ODQ4OH0.WIzkDiH3Qq4h66YlTLzs39-zuBd86RS5c-cXxpO1OYc
+2022-mar-31 17:24:35.836 DEBUG [http-nio-9100-exec-6] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4MjY2NzUsImlhdCI6MTY0ODc0MDI3NTgyN30.5DpFS03W812d2ANXjIS5co_mwHuFgCjwxGdTTSwj2GQ
+2022-mar-31 17:35:05.105 DEBUG [http-nio-9100-exec-2] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4MjczMDUsImlhdCI6MTY0ODc0MDkwNTEwMn0.TgEIPuo2cyq1qWO6JWqD8tXGBgoUnH8RAUQEYBlrfgg
+2022-mar-31 17:56:48.814 DEBUG [http-nio-9100-exec-1] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4Mjg2MDgsImlhdCI6MTY0ODc0MjIwODgwNn0.lEi2SZyPou9Ao-c2KjuuVfIfiNnfciTwRe5FbPY09sk
+2022-mar-31 18:35:36.467 DEBUG [http-nio-9100-exec-8] i.w.r.i.AuthV1Impl - Token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlbnJpY28ubW9udGU5N0BnbWFpbC5jb20iLCJhdWRpZW5jZSI6Im4iLCJyb2xlcyI6WyJST0xFX0FQUExJQ0FOVCJdLCJleHAiOjE2NDg4MzA5MzYsImlhdCI6MTY0ODc0NDUzNjQ2MH0.hC2OU097Y8tkngL3xRpQgepmmlt8qve0Q0N9VBicLbg

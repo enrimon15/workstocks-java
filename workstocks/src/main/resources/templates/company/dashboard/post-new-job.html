@@ -1,0 +1,183 @@
+    <!-- Post Job Offer -->
+    <div th:fragment="div" class="tab-pane active container" id="postNewJob">
+
+       
+            <div th:if="${msgSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+                [[#{${msgSuccess}}]]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+
+        <form method="POST" th:action="@{'/company/new-offer'}" th:object="${jobOffer}">
+        <!-- User Info -->
+            <div class="tr-single-box">
+                <div class="tr-single-header" th:if="${jobOffer.id != null}">
+                    <h4><i class="ti-pencil"></i> [[#{nj.titleUpdate}]]</h4>
+                </div>
+                <div class="tr-single-header" th:unless="${jobOffer.id != null}">
+                    <h4><i class="ti-plus"></i> [[#{nj.title}]]</h4>
+                </div>
+                <div class="tr-single-body">
+
+                    <div class="row">
+
+                     
+                       <input hidden name="id" th:value="${jobOffer.id}" th:field="*{id}" th:if="${jobOffer.id != null}">
+                     
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.workingPlace}">WP</label>
+                                <select required class="form-control" name="workingPlace" id="working-place" th:field="*{workingPlace.id}">
+                                   
+                                        <option th:each="workingPlace: ${workingPlaces}" th:selected="${jobOffer.id != null && workingPlace.id == jobOffer.workingPlace.id}"          
+                                                th:value="${workingPlace.id}">[[${workingPlace?.address?.city + ', ' + workingPlace?.address?.street + ' (' + workingPlace?.address?.country + ')'}]]</option>
+                                   
+                                </select>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('workingPlace')}" th:text="${err}"><strong>error WP</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.jobTitle}">JOB TITLE</label>
+                                <input class="form-control" name="title" required type="text" th:placeholder="#{nj.jobTitle}" th:value="${jobOffer?.title != null ? jobOffer?.title : ''}" th:field="*{title}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('title')}" th:text="${err}"><strong>error job title</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.description}">DESCR</label>
+                                <textarea id="summernote" name="description" th:field="*{description}">[[${jobOffer?.description != null && jobOffer.description != '' ? jobOffer.description : ''}]]</textarea>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('description')}" th:text="${err}"><strong>error job descr</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.dueDate}">DUE DATE</label>
+                                <input class="form-control" name="dueDate" required type="date" th:value="${jobOffer?.dueDate != null ? jobOffer.dueDate : ''}" th:field="*{dueDate}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('dueDate')}" th:text="${err}"><strong>error job due date</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.contractType}">CONTR TYPE</label>
+                                <select required class="form-control" name="offerType" id="offer-type" th:field="*{contractType}">
+                                    <option th:selected="${jobOffer?.contractType?.name() == 'FULLTIME'}" th:value="${T(it.workstocks.entity.enums.ContractType).FULLTIME}" th:text="#{nj.full_time}">FT</option>
+                                    <option th:selected="${jobOffer?.contractType?.name() == 'PARTTIME'}" th:value="${T(it.workstocks.entity.enums.ContractType).PARTTIME}" th:text="#{nj.part_time}">PT</option>
+                                    <option th:selected="${jobOffer?.contractType?.name() == 'CONSTRUCTIONBASE'}" th:value="${T(it.workstocks.entity.enums.ContractType).CONSTRUCTIONBASE}" th:text="#{nj.construction_base}">COSTR BASE</option>
+                                    <option th:selected="${jobOffer?.contractType?.name() == 'INTERNSHIP'}" th:value="${T(it.workstocks.entity.enums.ContractType).INTERNSHIP}" th:text="#{nj.internship}">INT</option>
+                                </select>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('contractType')}" th:text="${err}"><strong>error job contract type</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.experience}">EXP</label>
+                                <input class="form-control" name="experience" id="exp" required type="number" min="0" th:placeholder="#{nj.experiencePh}" th:value="${jobOffer?.experience != null ? jobOffer.experience : ''}" th:field="*{experience}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('experience')}" th:text="${err}"><strong>error job exp</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.gender}">GENDER</label>
+                                <select required class="form-control" name="gender" id="gender" th:field="*{gender}">
+                                    <option th:selected="${jobOffer?.gender?.value == 'NS'}" th:value="${T(it.workstocks.entity.enums.Gender).NOTSPECIFIED}" th:text="#{nj.notSpecified}">NOT SPEC</option>
+                                    <option th:selected="${jobOffer?.gender?.value == 'M'}" th:value="${T(it.workstocks.entity.enums.Gender).MALE}">M</option>
+                                    <option th:selected="${jobOffer?.gender?.value == 'F'}" th:value="${T(it.workstocks.entity.enums.Gender).FEMALE}">F</option>
+                                </select>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('gender')}" th:text="${err}"><strong>error job gender</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.minSalary}">MIN SALARY</label>
+                                <input required class="form-control" name="minSalary" type="number" min="0" th:placeholder="#{nj.minSalary} + '(K)'" th:value="${jobOffer?.minSalary != null ? jobOffer.minSalary : ''}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('minSalary')}" th:text="${err}"><strong>error jo min sal</strong></p>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.maxSalary}">MAX SALARY</label>
+                                <input required class="form-control" name="maxSalary" type="number" min="0" th:placeholder="#{nj.maxSalary} + ' (K)'" th:value="${jobOffer?.maxSalary != null ? jobOffer.maxSalary : ''}" th:field="*{maxSalary}">
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('maxSalary')}" th:text="${err}"><strong>error job max sal</strong></p>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <label th:text="#{nj.skills}">SKILLS</label>
+                                <select required class="form-control" name="skills[]" multiple="multiple" id="skill" th:field="*{skillFromFE}">
+                                	<option th:each="skill : ${jobOffer?.skillFromFE}" selected th:value="${skill}">[[${skill}]]</option>
+                                </select>
+                            </div>
+                            <!-- Error -->
+                            <p class="color--error mb-2" th:each="err : ${#fields.errors('skillFromFE')}" th:text="${err}"><strong>error job skills</strong></p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-info btn-md full-width" th:if="${jobOffer?.id != null}" th:text="#{nj.buttonUpdate}">UPDATE<i class="ml-2 ti-arrow-right"></i></button>
+            <button type="submit" class="btn btn-info btn-md full-width" th:unless="${jobOffer?.id != null}" th:text="#{nj.buttonSave}">SAVE<i class="ml-2 ti-arrow-right"></i></button>
+        </form>
+
+
+    <script>
+        $(document).ready(function() {
+            $('#working-place').select2();
+
+            $('#offer-type').select2({
+                minimumResultsForSearch: -1
+            });
+
+            $('#gender').select2({
+                minimumResultsForSearch: -1
+            });
+
+            $('#skill').select2({
+                minimumResultsForSearch: -1,
+                placeholder: "[[#{nj.skillsPh}]]",
+                allowClear: true,
+                tags: true,
+               	language: {
+  					noResults: function(){
+      					return "[[#{nj.skills.noResultFound}]]";
+  					}
+				},
+           	});
+           	
+           	////////
+           	
+           	/*const removeSkillButts = document.querySelectorAll("span.select2-selection__choice__remove");
+           	
+           	removeSkillButts.forEach((removeButt) => {
+           		removeButt.setAttribute(
+           			"onclick",
+           			//`console.log("${removeButt.parentElement.title}");`
+           		);
+           	}); */	
+		});
+    </script>
+    </div>
+

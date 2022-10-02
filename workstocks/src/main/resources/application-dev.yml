@@ -1,0 +1,61 @@
+
+spring:
+  # ========= DATABASE MYSQL =========== #
+  datasource:
+    url: jdbc:mysql://localhost:3306/workstocks_java?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: workstocks_user
+    password: workstocks_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      jdbc:
+        time_zone: UTC    properties:
+      hibernate:
+        show_sql: false
+        dialect: org.hibernate.dialect.MariaDB53Dialect
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+  activemq:    broker-url: tcp://localhost:61616
+    user: workstocks-amq-user
+    password: workstocks-amq-password  
+
+    
+    
+  # ========= DATABASE MONGO =========== #
+  
+  data:
+    mongodb:      database: blog
+      host: localhost
+      port: 27017
+      password: blog-password      username: blog-user
+    # ========= JAVA MAIL =========== #
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: workstockslaravel@gmail.com
+    password: Workstocks2021*
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+###############################################
+######### WORKSTOCKS PROPERTIES ###############
+###############################################
+
+error:
+  show: false
+
+workstocks:
+  job-alert:
+    cron-eleven: 0 0 23 * * * #ogni giorno alle 23
+    cron-five-minutes: '0 */5 * * * *' #ogni 5 minuti 
+  broker-url: tcp://localhost:61616
+  queue-name: workstocks-queue
+  admin-api-key: c8835783-f7db-40ec-a5b2-621f0c7c1d90
+  reset-password-validity: 3600 #1h in second
+  site-url: http://localhost:8080

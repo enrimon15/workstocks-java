@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+	  <head></head>
+	  <body>
+	  
+	  
+
+<footer class="dark-footer skin-dark-footer" th:fragment="footer">
+				<div>
+					<div class="container">
+						<div class="row">
+							
+							<div class="col-lg-3 col-md-3 mx-auto">
+								<div class="footer-widget">
+									<img th:src="@{/img/logo-light.png}" class="img-footer" alt="" />
+									<div class="footer-add">
+										<p>L'Aquila,  IT (67100)</p>
+										<p><strong>Email:</strong></br><a href="#">workstockslaravel@gmail.com</a></p>
+										<p><strong>Call:</strong></br>0862-1234567</p>
+									</div>
+									
+								</div>
+							</div>		
+							<div class="col-lg-2 col-md-2 mx-auto">
+								<div class="footer-widget">
+									<h4 class="widget-title" th:text="#{index.sections}">Navigations</h4>
+									<ul class="footer-menu">
+										<li><a th:href="@{/}" th:text="#{nav.home}"></a></li>
+    									<li><a th:href="@{/public/job-offers}" th:text="#{nav.offers}"></a></li>
+    									<li><a th:href="@{/public/companies}" th:text="#{nav.companies}"></a></li>
+										<li><a th:href="@{/public/applicants}" th:text="#{nav.applicants}"></a></li>
+										<li><a th:href="@{/public/blog/news}" th:text="#{nav.blog}"></a></li>
+									</ul>
+								</div>
+							</div>
+									
+							<div class="col-lg-2 col-md-2 mx-auto">
+								<div class="footer-widget">
+									<h4 class="widget-title" th:text="#{index.news}"></h4>
+									<ul class="footer-menu">
+										<li th:each="news : ${footer}"><a th:href="@{'/public/blog/news?id=' + ${news.id}}" th:text="${news.title}"></a></li>
+									</ul>
+								</div>
+							</div>
+							<!--
+							<div class="col-lg-2 col-md-2 mx-auto">
+								<div class="footer-widget">
+									<h4 class="widget-title">My Account</h4>
+									<ul class="footer-menu">
+										<li><a href="#">Dashboard</a></li>
+										<li><a href="#">Applications</a></li>
+										<li><a href="#">Packages</a></li>
+										<li><a href="#">resume.html</a></li>
+										<li><a href="#">SignUp Page</a></li>
+									</ul>
+								</div>
+							</div>
+						
+							<div class="col-lg-3 col-md-3">
+								<div class="footer-widget">
+									<h4 class="widget-title">Download Apps</h4>
+									<a href="#" class="other-store-link">
+										<div class="other-store-app">
+											<div class="os-app-icon">
+												<i class="ti-android theme-cl"></i>
+											</div>
+											<div class="os-app-caps">
+												Google Play
+												<span>Get It Now</span>
+											</div>
+										</div>
+									</a>
+									<a href="#" class="other-store-link">
+										<div class="other-store-app">
+											<div class="os-app-icon">
+												<i class="ti-apple theme-cl"></i>
+											</div>
+											<div class="os-app-caps">
+												App Store
+												<span>Now it Available</span>
+											</div>
+										</div>
+									</a>
+								</div>
+							</div>-->
+							
+						</div>
+					</div>
+				</div>
+				
+				<div class="footer-bottom">
+					<div class="container">
+						<div class="row align-items-center">
+							
+							<div class="col-lg-6 col-md-6 mx-auto">
+								<p class="mb-0">© 2021-2022 Workstocks. Desigend By Marco Ovidi & Enrico Monte for MWT2021</p>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</footer>
+<!-- ============================ Footer End ================================== -->

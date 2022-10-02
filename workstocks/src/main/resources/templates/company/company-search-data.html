@@ -1,0 +1,48 @@
+<!-- Single Large Job List -->
+<div th:each="company : ${companies}" class="job-new-list">
+    <div class="vc-thumb">
+        <img class="img-fluid rounded-circle"
+             th:src="${company.companyOwner.avatar} ? 'data:image/jpeg;base64,' + ${company.companyOwner.getBase64Avatar} : '/img/default.png'">
+    </div>
+    <div class="vc-content">
+        <h5 class="title"><a th:href="'/public/company?id='+${company.companyOwner.id}" th:text="${company.name}">name</a></h5>
+        <p th:text="${company.companyForm}">company_form</p>
+
+        <ul class="vc-info-list">
+            <li class="list-inline-item">
+                <h5 th:text="#{company.webSite}">company.website</h5> 
+                <i class="ti-world"></i>[[${company.website}]]
+            </li>
+            <li class="list-inline-item">
+                <h5 th:text="#{company.employees}">company.employees</h5> 
+                <i class="ti-user"></i>[[${company.employeesNumber}]]
+            </li>
+        </ul>
+    </div>
+
+    <a class="btn btn-black bn-det" th:href="'/public/company?id='+${company.companyOwner.id}">[[#{company.more}]]
+        <i class="ti-arrow-right ml-1"></i></a>
+</div>
+
+
+
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    let results = /*[[${totalResults}]]*/ '0';
+    window.totalResults = results;
+    
+    if(results == null ||  results == 0) {
+		window.totalResults = '';
+		window.totalResultI18nString = /*[[#{jobs.noResult}]]*/ 'Risultati';
+	} else if (results == 1) {
+		window.totalResultI18nString = /*[[#{jobs.result}]]*/ 'Risultato';
+	} else {
+		window.totalResultI18nString = /*[[#{jobs.results}]]*/ 'Risultati';	
+	}
+    
+
+/*]]>*/
+</script>

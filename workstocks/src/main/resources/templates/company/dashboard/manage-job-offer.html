@@ -1,0 +1,150 @@
+
+
+    <!-- Manage Job Offer -->
+    <div  th:fragment="job-offers" class="tab-pane active container" id="postNewJob">
+            
+            <div th:if="${msgSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+                [[#{${msgSuccess}}]]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <div class="modal fade" id="delete-job-modal" tabindex="-1" role="dialog" aria-labelledby="delete-job-modal" aria-hidden="true">
+    <style>
+        .mg-edit {
+            background: #00a94f3b;
+            padding: 6px 16px;
+            border-radius: 2px;
+            transition: all 0.4s;
+            color: #00a94f;
+        }
+
+        .mg-edit:hover {
+            background: #00a94f;
+            color: white!important;
+        }
+
+        .mg-candidate {
+            background: #d2e8ff;
+            padding: 6px 16px;
+            border-radius: 2px;
+            transition: all 0.4s;
+            color: dodgerblue;
+        }
+
+        .mg-candidate:hover {
+            background: dodgerblue;
+            color: white!important;
+        }
+    </style>
+    <!-- Modal Delete Job -->
+
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{mj.modalTitle}">modalTitle</h5>
+                </div>
+                <div class="modal-body" th:text="#{mj.modalBody}">modalBody</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" th:text="#{mj.cancel}">cancel</button>
+                    <a id="buttonDelete" href="#" class="btn btn-danger color--white" style="border-color: transparent!important;" th:text="#{mj.delete}">delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            <div class="tr-single-box ">
+                <div class="tr-single-header mb-3">
+                    <h4><i class="ti-layers-alt"></i>[[#{mj.title}]]</h4>
+                </div>
+
+                <div class="container" th:if="${jobs.elements != null && !jobs.elements.isEmpty()}">
+                        <div class="p-1" th:each="job : ${jobs.elements}">
+                            <div class="manage-list">
+
+                                <div class="mg-list-wrap">
+                                    <div class="mg-list-caption">
+                                        <h4 class="mg-title title">
+                                            <a th:href="@{/public/job-offer(id=${job.id})}" style="cursor: pointer" th:text="${job.title}">JOB TITLE</a>
+                                            <span class="j-part-time p-2 ml-2" style="font-size: small; font-weight: normal" th:if="${job.contractType.name() == 'FULLTIME'}" th:text="#{nj.full_time}">FT</span>
+                                            <span class="j-part-time p-2 ml-2" style="font-size: small; font-weight: normal" th:if="${job.contractType.name() == 'PARTTIME'}" th:text="#{nj.part_time}">PT</span>
+                                            <span class="j-part-time p-2 ml-2" style="font-size: small; font-weight: normal" th:if="${job.contractType.name() == 'CONSTRUCTIONBASE'}" th:text="#{nj.construction_base}">CB</span>
+                                            <span class="j-part-time p-2 ml-2" style="font-size: small; font-weight: normal" th:if="${job.contractType.name() == 'INTERNSHIP'}" th:text="#{nj.internship}">IN</span>
+                                        </h4>
+
+                                        <span class="mg-subtitle" style="color: #00a94f" th:text="${job?.company?.name}">COMP NAME</span>
+                                        <div class="mt-1" th:text="${job?.workingPlace?.address?.city} + ', ' + ${job?.workingPlace?.address?.country}">CITY AND COUNTRY</div>
+                                       
+                                            <span><em>[[${#temporals.format(job.createdAt,'dd-MM-yyyy')}]]</em></span>
+                                       
+                                            <div th:unless="${job.dueDate.isAfter(T(java.time.LocalDate).now())}"><span class="color--error">[[#{mj.expired} + ' ( ' + ${#temporals.format(job.dueDate,'dd-MM-yyyy')} + ' )']] <i class="ti-na ml-2"></i></span></div>
+                                        
+
+                                    </div>
+                                </div>
+
+                                <div class="mg-action">
+                                    <div class="btn-group" data-toggle="tooltip" data-placement="top" th:title="#{mj.tooltipCandidates}">
+                                        <a th:href="@{/company/handle-offers/candidates(jobId=${job.id},jobName=${job.title})}" class="mg-candidate"><i class="ti-user"></i></a>
+                                    </div>
+                                    <span th:class="${job.dueDate.isBefore(T(java.time.LocalDate).now()) ? 'd-none' : ''}">
+                                        <div class="btn-group ml-2" data-toggle="tooltip" data-placement="top" th:title="#{mj.tooltipEdit}">
+                                            <a th:href="@{/company/new-offer(id=${job.id})}" class="mg-edit"><i class="ti-pencil"></i></a>
+                                        </div>
+                                        <div class="btn-group" data-toggle="tooltip" data-placement="top" th:title="#{mj.tooltipDelete}">
+                                            <a th:onclick="deleteJobShow([[${job.id}]])" data-toggle="modal" data-target="#delete-job-modal" href="#" class="mg-delete"><i class="ti-trash"></i></a>
+                                        </div>
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                        
+                        
+                        
+                </div>
+                <div class="container" th:unless="${jobs.elements != null && !jobs.elements.isEmpty()}">                
+                        <p th:text="#{mj.noContent}">NO CONTENT</p>
+                </div>
+
+            </div>
+            
+            <div class="row">              
+				<div class="col-md-12" id="page-selection"></div>
+			</div>
+			
+			
+			<script>
+		 		document.addEventListener("DOMContentLoaded", function () {
+					let paginazione = $('#page-selection').bootpag({
+						total: "[[${jobs.response.totalPages}]]",
+						page: "[[${jobs.response.pageNumber}]]",
+						maxVisible: 10
+					}).on("page", function(event, num) {
+						//azioni da eseguire all'evento di cambio pagina '
+						window.location.href = '/company/handle-offers?page=' + num;
+					});
+				});
+		 	</script>
+
+
+<script>
+    function deleteJobShow(jobId) {
+        let url = '/company/handle-offers/delete?id=:id';
+        url = url.replace(':id', jobId);
+        document.getElementById("buttonDelete").href = url;
+    }
+</script>
+
+<script>
+    window.addEventListener('load', function () {
+        // tooltip
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    });
+</script>
+
+
+    </div>

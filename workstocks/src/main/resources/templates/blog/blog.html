@@ -1,0 +1,112 @@
+<html lang ="en_EN" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      layout:decorate="~{layouts/outline}">
+<div layout:fragment="content">
+
+	<div class="Loader"></div>
+
+	<div class="clearfix"></div>
+			
+			
+			<!-- ============================ Hero Banner  Start================================== -->
+			<div class="page-title-wrap pt-img-wrap" th:style="'background:url('+@{/img/banner_home.jpeg}+');'">
+				<div class="container">
+					<div class="col-lg-12 col-md-12">
+						<div class="pt-caption text-center">
+							<h1 th:text="#{blog.title}">blog.title</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<!-- ============================ Hero Banner End ================================== -->
+			
+			<!-- ============================ Blog Grid Start ================================== -->
+			<section>
+				<div class="container">
+
+					<div class="row mb-4">
+						<div class="col mx-auto p-t-10 mb-3">							
+							<div class="input-group small">
+								<input type="text" class="form-control b-r" id="searchQuery" th:placeholder="#{blog.search}" style="background-color: #f4f8fa">
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary" id="searchButt" th:text="#{blog.go}">cerca</button>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-12" id="news_data"></div>
+					
+				</div>
+				
+				<div class="col-md-12" id="page-selection"></div>
+				
+			</section>
+			<div class="clearfix"></div>
+			<!-- ============================ Blog Grid End ================================== -->
+
+	
+	<script>
+	
+	document.addEventListener("DOMContentLoaded", function () {
+		let paginazione = $('#page-selection').bootpag({
+			total: 10,
+			page: 1,
+			maxVisible: 10
+		}).on("page", function(event, num) {
+			//azioni da eseguire all'evento di cambio pagina '
+			searchNews(num);
+		});
+		
+		function analyzeFilters() {
+        	const searchQuery = $('#searchQuery').val();
+      		let requestFilter = {};
+      		requestFilter.newsSearchQuery = searchQuery;
+	        return requestFilter;
+	    }
+	    
+		
+		function searchNews(pageNumber) {
+		let body = { "pageNumber": pageNumber, "filters": analyzeFilters()};
+		
+		$(document).ready(function() {
+			$.ajax({
+				type: "POST",
+				contentType: "application/json",
+				url: "/public/blog/news-data",
+				data: JSON.stringify(body),
+				success: function(data) {
+
+					$('#news_data').html(data.data);
+					if (data.totalPages == 0) data.totalPages = 1;
+					paginazione.bootpag({ total: data.totalPages, page: pageNumber, maxVisible: 10 });
+				}
+			});
+
+			});
+    	}
+    	
+    	$('#searchButt').on("click",function () {
+        	searchNews(1);
+    	});
+    	
+    	let input = document.getElementById("searchQuery");
+		input.addEventListener("keyup", function(event) {
+		    if (event.keyCode === 13) {
+		        event.preventDefault();
+		        document.getElementById("searchButt").click();
+		    }
+		});
+    	
+    	searchNews(1);
+		
+		
+	});
+	
+	</script>
+	
+	
+</div>
+</html>

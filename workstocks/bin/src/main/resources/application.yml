@@ -1,0 +1,24 @@
+server:  
+  servlet:
+    context-path: /workstocks
+
+spring:
+  application:
+    name: WorkStocks
+  profiles:
+    active: dev
+  #jackson:
+    #default-property-inclusion: NON_NULL
+    #serialization:
+      #write-dates-as-timestamps: true
+  messages:
+    basename: i18n/common, i18n/workstocks
+    encoding: UTF-8
+    use-code-as-default-message: true
+    
+###############################################
+############# MYUNIVAQ PROPERTIES #############
+###############################################
+
+workstocks:
+  dateformat: dd/MM/yyyy

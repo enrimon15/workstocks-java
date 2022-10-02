@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+	  <head></head>
+	  <body>
+	  
+	  
+<div class="header header-light" th:fragment="navbar">
+    <div class="container-fluid">
+        <nav id="navigation" class="navigation navigation-landscape">
+            <div class="nav-header">
+                <a class="nav-brand" th:href="@{/}">
+                    <img th:src="@{/img/logo.png}" class="logo" alt="" />
+                </a>
+                <div class="nav-toggle"></div>
+            </div>
+            <div class="nav-menus-wrapper" style="transition-property: none;">
+                <ul class="nav-menu" th:with="url=${#httpServletRequest.requestURI}">
+					
+					<li th:class="${url.equals('/')} ? 'active'">
+        				<a th:href="@{/}" th:text="#{nav.home}"><span class="submenu-indicator"></span></a>
+    				</li>
+    				<li th:class="${url.equals('/public/job-offers')} ? 'active'">
+        				<a th:href="@{/public/job-offers}" th:text="#{nav.offers}"><span class="submenu-indicator"></span></a>
+    				</li>
+    				<li th:class="${url.equals('/public/companies')} ? 'active'">
+        				<a th:href="@{/public/companies}" th:text="#{nav.companies}"><span class="submenu-indicator"></span></a>
+    				</li>
+    				<li th:class="${url.equals('/public/applicants')} ? 'active'">
+        				<a th:href="@{/public/applicants}" th:text="#{nav.applicants}"><span class="submenu-indicator"></span></a>
+    				</li>
+    				<li  th:class="${url.equals('/public/blog/news')} ? 'active'">
+        				<a th:href="@{/public/blog/news}" th:text="#{nav.blog}">Blog<span class="submenu-indicator"></span></a>
+    				</li>
+                    <li th:if="__${#locale}__=='it_IT' or __${#locale}__=='it'" th:with="currentUrl=(${#httpServletRequest.requestURI + '?' + #strings.defaultString(#httpServletRequest.queryString, '').replace('&lang=it','').replace('&lang=en','')})">
+                         <a href="#">
+                             <img th:src="@{/img/flag-it.png}" style="height: 22px"/><span class="submenu-indicator"></span>
+                         </a>
+                         <ul class="nav-dropdown nav-submenu" style="right: auto; display: none;">
+                             <li>
+                                 <a th:href="@{${currentUrl}(lang=en)}">
+                                     <img th:src="@{/img/flag-uk.png}" class="mr-2" style="height: 22px">
+                                     &nbsp;Inglese
+                                 </a>
+                             </li>
+                         </ul>
+                     </li>
+                     <li th:unless="__${#locale}__=='it_IT' or __${#locale}__=='it'" th:with="currentUrl=(${#httpServletRequest.requestURI + '?' + #strings.defaultString(#httpServletRequest.queryString, '').replace('&lang=it','').replace('&lang=en','')})">
+                         <a href="#">
+                             <img th:src="@{/img/flag-uk.png}" style="height: 22px"><span class="submenu-indicator"></span>
+                         </a>
+                         <ul class="nav-dropdown nav-submenu" style="right: auto; display: none;">
+                             <li>
+                                 <a th:href="@{${currentUrl}(lang=it)}">
+                                     <img th:src="@{/img/flag-it.png}" class="mr-2" style="height: 22px"/>
+                                     &nbsp;Italian
+                                 </a>
+                             </li>
+                         </ul>
+                    </li>
+                    <li class="d-none d-md-block d-lg-none" sec:authorize="isAnonymous()">
+                            <a th:href="@{/login}">
+                                <i class="ti-user mr-1"></i><span class="dn-lg" th:text="#{loginAndRegister.accountActions}">Login</span>
+                            </a>
+                    </li>
+                    <li class="d-none d-md-block d-lg-none" sec:authorize="isAuthenticated()">
+                            <a sec:authorize="hasRole('APPLICANT')" href="#">
+                                <i class="ti-user mr-1"></i>
+                                	[[${#authentication.principal.user.name}]]
+                                	<span class="submenu-indicator"></span>
+                            </a>
+                            
+                            <a sec:authorize="hasRole('COMPANY_OWNER')" href="#">
+                                <i class="ti-user mr-1"></i>
+                                	[[${#authentication.principal.user.company.name}]]
+                                	<span class="submenu-indicator"></span>
+                            </a>
+                            
+                            <a sec:authorize="hasRole('ADMIN')" href="#">
+                                <i class="ti-user mr-1"></i>
+                                	[[${'Admin: ' + #authentication.principal.user.name}]]
+                                	<span class="submenu-indicator"></span>
+                            </a>
+                            
+                            <ul class="nav-dropdown nav-submenu" style="right: auto; display: none;">
+                                    
+                                                                      
+                                   	<li sec:authorize="hasRole('COMPANY_OWNER')"><a th:href="@{/company/profile}" th:text="#{nav.profile}">Profile</a></li>
+                                   	<li sec:authorize="hasRole('APPLICANT')"><a th:href="@{/applicant/profile}" th:text="#{nav.profile}">Profile</a></li>
+                                   	<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/news}" th:text="#{blog.news}">Dashboard</a>News</li>
+                                   	<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/common/change-password}" th:text="#{changePassword.title}">Change pw</a></li>
+                                   	<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/common/change-password}" th:text="#{nav.profile}">Profile</a></li>
+                                <li>   
+                                    <a th:href="@{/logout}" th:text=#{nav.logout}>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                    </li>
+                </ul>
+
+                <ul class="nav-menu nav-menu-social align-to-right">
+           
+                        <li class="d-none d-lg-inline" sec:authorize="isAnonymous()">
+                            <a th:href="@{/login}">
+                                <i class="ti-user mr-1"></i><span class="dn-lg" th:text="#{loginAndRegister.accountActions}">Login</span>
+                            </a>
+                        </li>
+                        <li class="d-none d-lg-inline" sec:authorize="isAuthenticated()">
+                            <a sec:authorize="hasRole('APPLICANT')" href="#">
+                                <i class="ti-user mr-1"></i>
+                                	[[${#authentication.principal.user.name}]]
+                                	<span class="submenu-indicator"></span>
+                            </a>
+                            
+                            <a sec:authorize="hasRole('COMPANY_OWNER')" href="#">
+                                <i class="ti-user mr-1"></i>
+                                	[[${#authentication.principal.user.company.name}]]
+                                	<span class="submenu-indicator"></span>
+                            </a>
+                            
+                            <a sec:authorize="hasRole('ADMIN')" href="#">
+                                <i class="ti-user mr-1"></i>
+                                	[[${'Admin'}]]
+                                	<span class="submenu-indicator"></span>
+                            </a>
+                            
+                            <ul class="nav-dropdown nav-submenu" style="right: auto; display: none;">
+                                    
+                                                                      
+                                   	<li sec:authorize="hasRole('COMPANY_OWNER')"><a th:href="@{/company/profile}" th:text="#{nav.profile}">Profile</a></li>
+                                   	<li sec:authorize="hasRole('APPLICANT')"><a th:href="@{/applicant/profile}" th:text="#{nav.profile}">Profile</a></li>
+                                   	<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/admin/news-list}" th:text="#{blog.news}">News</a></li>
+                                   	<li sec:authorize="hasRole('ADMIN')"><a th:href="@{/common/change-password}" th:text="#{changePassword.title}">Change pw</a></li>
+                                <li>   
+                                    <a th:href="@{/logout}" th:text=#{nav.logout}>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                    <li class="add-listing theme-bg display-desk mr-2">
+                        <a th:href="@{/company/new-offer}">
+                             <i class="ti-plus"></i> [[#{nav.newOffer}]]
+                        </a>
+                    </li>
+                    
+                    <li class="add-listing theme-bg display-mob">
+                        <a th:href="@{/company/new-offer}">
+                            <i class="ti-plus"></i> [[#{nav.newOffer}]]
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<!-- End Navigation -->
+<div class="clearfix"></div>
+
+</body>
+</html>

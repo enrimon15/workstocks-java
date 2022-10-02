@@ -1,0 +1,114 @@
+<!-- applied job -->
+<div th:fragment="content" class="tab-pane active container" id="applied">
+
+<!-- Modal Delete Applied Job -->
+<div  class="modal fade" id="delete-appliedjob-modal" tabindex="-1" role="dialog" aria-labelledby="delete-appliedjob-modal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{aj.modalTitle}">modalTitle</h5>
+            </div>
+            <div class="modal-body" th:text="#{aj.modalBody}">modalBody</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" th:text="#{mj.cancel}">cancel</button>
+                <a id="buttonDelete" href="#" class="btn btn-danger color--white" style="border-color: transparent!important;" th:text="#{mj.delete}">delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div th:if="${msgSuccess}" class="alert alert-success alert-dismissible fade show" role="alert">
+            [[#{${msgSuccess}}]]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+    <div class="tr-single-box">
+        <div class="tr-single-header">
+            <h4><i class="ti-briefcase"></i> [[#{aj.title}]]</h4>
+        </div>
+
+        <div class="container mt-3">
+
+            
+            <th:block th:if="${applications != null and applications.elements != null and !applications.elements.isEmpty()}">
+                <div th:each="job : ${applications.elements}" class="p-1">
+                    <div class="manage-list">
+
+                        <div class="mg-list-wrap">
+                            <div class="mg-list-caption">
+                                <h4 class="mg-title title">
+                                    <a th:href="@{/public/job-offer(id=${job.jobOffer.id})}" style="cursor: pointer" th:text="${job.jobOffer.title}">title</a>
+                                    <span class="j-part-time p-2 ml-2" style="font-size: small; font-weight: normal">[[#{jobs.+${job.jobOffer.contractType.name()}}]]</span>
+                                </h4>
+
+                                <span class="mg-subtitle" style="color: #00a94f" th:text="${job.jobOffer.company.name}">company_name</span>
+                                <div class="mt-1">[[${job.jobOffer?.workingPlace?.address?.city} + ', ' + ${job.jobOffer?.workingPlace?.address?.country}]]</div>
+                                
+                                <th:block th:if="${job.jobOffer.dueDate.isAfter(T(java.time.LocalDate).now())}">
+                                    <span><em>[[${#temporals.format(job.createdAt,'dd-MM-yyyy')}]]</em></span>
+                                </th:block>    
+                                <th:block th:unless="${job.jobOffer.dueDate.isAfter(T(java.time.LocalDate).now())}">
+                                    <span><em>[[${#temporals.format(job.createdAt,'dd-MM-yyyy')}]]</em> </span>
+                                    <div><span class="color--error">[[#{fv.expired}]] <i class="ti-na ml-2"></i></span></div>
+                                </th:block>
+                            </div>
+                        </div>
+
+                        <div class="mg-action">
+                            <span th:class="${job.jobOffer.dueDate.isBefore(T(java.time.LocalDate).now()) ? 'd-none' : ''}">
+                                <div class="btn-group" data-toggle="tooltip" data-placement="top" th:title="#{aj.tooltipDelete}">
+                                    <a th:onclick="deleteAppliedJobShow([[${job.jobOffer.id}]])" data-toggle="modal" data-target="#delete-appliedjob-modal" href="#" class="mg-delete"><i class="ti-trash"></i></a>
+                                </div>
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            </th:block>
+            <th:block th:unless="${applications != null and applications.elements != null and !applications.elements.isEmpty()}">
+                <p th:text="#{aj.noContent}">noContent</p>
+            </th:block>
+        </div>
+
+    </div>
+    
+    
+    
+   <div class="row">              
+		<div class="col-md-12" id="page-selection"></div>
+	</div>
+
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		let paginazione = $('#page-selection').bootpag({
+			total: "[[${applications.response.totalPages}]]",
+			page: "[[${applications.response.pageNumber}]]",
+			maxVisible: 10
+		}).on("page", function(event, num) {
+			//azioni da eseguire all'evento di cambio pagina '
+			window.location.href = '/applicant/applied-jobs?page=' + num;
+		});
+	});
+</script>
+
+<script>
+    function deleteAppliedJobShow(jobId) {
+        let url = '/applicant/applied-jobs-delete?jobId=:jobId';
+        url = url.replace(':jobId', jobId);
+        document.getElementById("buttonDelete").href = url;
+    }
+</script>
+
+<script>
+    window.addEventListener('load', function () {
+        // tooltip
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    });
+</script>
+
+</div>
