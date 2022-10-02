@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import it.workstocks.dto.user.company.SimpleCompanyDto;
+import it.workstocks.entity.Address;
 import it.workstocks.entity.enums.ContractType;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,5 +45,7 @@ public class SimpleJobOfferDto {
 	private Set<String> skills;
 	
 	private String detailsURL;
+	
+	private Address address;
 
 }

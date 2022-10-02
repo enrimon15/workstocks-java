@@ -96,7 +96,8 @@ public class ApplicantFavouritesV1Impl implements ApplicantFavouritesV1 {
 	public ResponseEntity<CheckResultDto> checkApplicantFavouriteJobOffer(Long applicantId, Long jobOfferId)
 			throws WorkstocksBusinessException {
 		checkForApplication(applicantId, jobOfferId);
-		return ResponseEntity.ok(new CheckResultDto(jobOfferService.isFavoriteForApplicant(jobOfferId, applicantId)));
+		CheckResultDto r = new CheckResultDto(jobOfferService.isFavoriteForApplicant(jobOfferId, applicantId));
+		return ResponseEntity.ok(r);
 
 	}
 

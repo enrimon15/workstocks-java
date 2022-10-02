@@ -65,8 +65,6 @@ public class ReviewServiceImpl implements ReviewService {
 			review = findOptionalReview(key);
 		} catch (WorkstocksBusinessException e) {
 			review.setId(key);
-			review.setApplicantFromDto(AuthUtility.getCurrentApplicant().getId());
-			review.setCompanyFromDto(companyId);
 		}
 		
 		review.setRating(dto.getRating());
@@ -81,15 +79,7 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	public ReviewDto findByCompanyId(Long companyId) throws WorkstocksBusinessException {
 		ReviewKey key = buildReviewKey(companyId, AuthUtility.getCurrentApplicant().getId());
-		Optional<Review> findReview = reviewRepository.findById(key);
-		ReviewDto reviewDto = new ReviewDto();
-		if (findReview.isPresent()) {
-			reviewDto = mapper.toDto(findReview.get());
-			reviewDto.setReviewed(true);
-		} else {
-			reviewDto.setReviewed(false);
-		}
-		return reviewDto;
+		return mapper.toDto(findOptionalReview(key));
 	}
 	
 	private ReviewKey buildReviewKey(Long companyId, Long applicantId) {

@@ -36,7 +36,7 @@ public interface ApplicantApplicationsV1 {
 		@ApiResponse(responseCode = "403", description = "Access denied to add application"),
 		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
-	@PostMapping(path = "/{jobOfferId}")
+	@PostMapping(path = "/{jobOfferId}", consumes = MediaType.ALL_VALUE)
 	ResponseEntity<Void> addApplicantApplication(@PathVariable("applicantId") Long applicantId,
 			@PathVariable("jobOfferId") Long jobOfferId) throws WorkstocksBusinessException;
 

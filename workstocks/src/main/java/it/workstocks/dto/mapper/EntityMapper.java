@@ -109,6 +109,7 @@ public interface EntityMapper {
 	JobOffer toEntity(JobOfferDto jobOfferDto);
 	
 	@Mapping(target = "company", qualifiedByName = "companyForJobOffer")
+	@Mapping(target = "address", source = "workingPlace.address")
 	SimpleJobOfferDto toSimpleDto(JobOffer jobOffer);
 
 	LinkedHashSet<SimpleJobOfferDto> toDtoJobOfferCollection(Set<JobOffer> jobOffers);
@@ -217,7 +218,6 @@ public interface EntityMapper {
 	 */
 	
 	default String getBase64(byte[] file) {
-		if (file == null || file.length <= 0) return null;
 		return FileUtils.getBase64FromByteArray(file);
 	}
 

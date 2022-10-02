@@ -67,7 +67,7 @@ jwt:
 workstocks:
   job-alert:
     cron-eleven: 0 0 23 * * * #ogni giorno alle 23
-    cron-five-minutes: '0 */5 * * * *' #ogni 5 minuti 
+    cron-five-minutes: '0 */1 * * * *' #ogni 5 minuti 
   broker-url: tcp://localhost:61616
   queue-name: workstocks-queue
   error:

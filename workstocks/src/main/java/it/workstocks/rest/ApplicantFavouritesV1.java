@@ -35,7 +35,7 @@ public interface ApplicantFavouritesV1 {
 		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<PaginatedDtoResponse<SimpleJobOfferDto>> getApplicantFavouritesJobOffers(@PathVariable("applicantId") Long applicantId, Integer pgae, Integer limit)
+	ResponseEntity<PaginatedDtoResponse<SimpleJobOfferDto>> getApplicantFavouritesJobOffers(@PathVariable("applicantId") Long applicantId, Integer page, Integer limit)
 			throws WorkstocksBusinessException;
 
 	@PreAuthorize(IS_APPLICANT)
@@ -61,7 +61,7 @@ public interface ApplicantFavouritesV1 {
 		@ApiResponse(responseCode = "403", description = "Access denied to remove favourite"),
 		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
-	@DeleteMapping(path = "{jobOfferId}")
+	@DeleteMapping("{jobOfferId}")
 	ResponseEntity<Void> deleteApplicantFavouriteJobOffer(@PathVariable("applicantId") Long applicantId,
 			@PathVariable("jobOfferId") Long jobOfferId) throws WorkstocksBusinessException;
 

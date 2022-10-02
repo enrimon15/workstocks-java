@@ -58,6 +58,9 @@ public class AuthV1Impl implements AuthV1 {
     @Value("${jwt.token.prefix}")
     private String tokenPrefix;
     
+    @Value("${jwt.expiration}")
+    private Long expiration;
+    
     @Autowired
 	private Translator translator;
     
@@ -89,6 +92,7 @@ public class AuthV1Impl implements AuthV1 {
         user.put("jobTitle", userDetails.getUser().getJobTitle());
         user.put("photo", userDetails.getUser().getAvatar() != null ? FileUtils.getBase64FromByteArray(userDetails.getUser().getAvatar()) : null);
         user.put("token", token);
+        user.put("expirationMillis", expiration);
         
         return ResponseEntity.ok().header(tokenHeader, tokenPrefix + " " + token).body(user);
 	}

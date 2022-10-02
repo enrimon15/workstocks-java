@@ -23,7 +23,7 @@ public class FileUtils {
 	}
 
 	public static String getBase64FromByteArray(byte[] blob) {
-		if (blob.length <= 0) return null;
+		if (blob == null || blob.length <= 0) return null;
 		return Base64.getEncoder().encodeToString(blob);
 	}
 	

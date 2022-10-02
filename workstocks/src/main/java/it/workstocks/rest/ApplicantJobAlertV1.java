@@ -32,7 +32,7 @@ public interface ApplicantJobAlertV1 {
 		@ApiResponse(responseCode = "403", description = "Access denied to add job-alert"),
 		@ApiResponse(responseCode = "500", description = "Generic error")
 	})
-	@PostMapping(path = "/{companyId}")
+	@PostMapping(path = "/{companyId}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> addJobAlert(@PathVariable("applicantId") Long applicantId,
 			@PathVariable("companyId") Long companyId) throws WorkstocksBusinessException;
 
